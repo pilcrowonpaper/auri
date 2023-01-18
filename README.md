@@ -9,9 +9,10 @@ Includes:
 
 ## Getting started
 
-1. Update package.json, specifically: `name`, `description`, `repository.url`
-2. Install dependencies using `pnpm install`
-3. Add NPM token as `NPM_TOKEN` Github environment variable 
+1. Update package.json, specifically: `name`, `description`, `repository.url`, `author`
+2. Check the license - uses MIT as default
+3. Install dependencies using `pnpm install`
+4. Add NPM token as `NPM_TOKEN` Github environment variable 
 
 ## Commands
 
