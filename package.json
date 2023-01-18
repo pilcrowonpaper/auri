@@ -1,0 +1,35 @@
+{
+	"name": "ts-package",
+	"version": "0.0.0",
+	"description": "Template for building TypeScript packages",
+	"main": "index.js",
+	"types": "index.d.ts",
+	"module": "index.js",
+	"type": "module",
+	"files": [
+		"**/*"
+	],
+	"scripts": {
+		"build": "shx rm -rf ./dist/* && tsc && shx cp ./package.json ./dist && shx cp ./README.md ./dist",
+		"package": "pnpm build && cd dist && pnpm install --no-frozen-lockfile && pnpm publish --no-git-checks --access public && cd ../"
+	},
+	"keywords": [],
+	"repository": {
+		"type": "git",
+		"url": "",
+		"directory": "/"
+	},
+	"author": "",
+	"license": "MIT",
+	"exports": {
+		".": "./index.js"
+	},
+	"typesVersions": {
+		"*": {}
+	},
+	"devDependencies": {
+		"prettier": "^2.8.3",
+		"shx": "^0.3.4",
+		"typescript": "^4.9.4"
+	}
+}
