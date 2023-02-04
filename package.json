@@ -1,7 +1,7 @@
 {
-	"name": "ts-package",
-	"version": "0.1.0",
-	"description": "Template for building TypeScript packages",
+	"name": "cela",
+	"version": "0.0.1",
+	"description": "Organize package changes and releases",
 	"main": "index.js",
 	"types": "index.d.ts",
 	"module": "index.js",
@@ -11,16 +11,15 @@
 	],
 	"scripts": {
 		"build": "shx rm -rf ./dist/* && tsc && shx cp ./package.json ./dist && shx cp ./README.md ./dist",
-		"release": "pnpm build && cd dist && pnpm install --no-frozen-lockfile && pnpm publish --no-git-checks --access public && cd ../",
-		"test": "pnpm exec ts-node --esm -T test/index.ts"
+		"release": "pnpm build && cd dist && pnpm install --no-frozen-lockfile && pnpm publish --no-git-checks --access public && cd ../"
 	},
 	"keywords": [],
 	"repository": {
 		"type": "git",
-		"url": "",
+		"url": "https://github.com/lucia-auth/cela",
 		"directory": "/"
 	},
-	"author": "",
+	"author": "lucia",
 	"license": "MIT",
 	"exports": {
 		".": "./index.js"
