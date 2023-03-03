@@ -101,6 +101,6 @@ export const getUser = async () => {
 	if (!primaryEmail) throw new Error();
 	return {
 		username,
-		email: primaryEmail
+		email: primaryEmail.email
 	};
 };

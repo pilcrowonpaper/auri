@@ -218,7 +218,6 @@ export const prepare = async (): Promise<void> => {
 	}
 
 	const user = await getUser();
-	console.log(user.email);
 
 	execute(
 		`git config --global user.name "${user.username}"`,
