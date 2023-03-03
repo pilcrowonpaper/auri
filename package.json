@@ -14,7 +14,8 @@
 	},
 	"scripts": {
 		"build": "shx rm -rf ./dist/* && tsc && shx cp ./package.json ./dist && shx cp ./README.md ./dist",
-		"release": "pnpm build && cd dist && pnpm install --no-frozen-lockfile && pnpm publish --no-git-checks --access public && cd ../"
+		"release": "pnpm build && cd dist && pnpm install --no-frozen-lockfile && pnpm publish --no-git-checks --access public && cd ../",
+		"cela": "node ./dist/index.js"
 	},
 	"keywords": [],
 	"repository": {
@@ -36,8 +37,7 @@
 		"prettier": "^2.8.3",
 		"shx": "^0.3.4",
 		"ts-node": "^10.9.1",
-		"typescript": "^4.9.4",
-		"cela": "workspace:*"
+		"typescript": "^4.9.4"
 	},
 	"dependencies": {
 		"dotenv": "^16.0.3",
