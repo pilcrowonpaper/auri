@@ -1,4 +1,0 @@
----
-package: "cela"
-type: "minor"
----
