@@ -99,7 +99,6 @@ export const getUser = async () => {
 	const emails = await getUserEmails();
 	const primaryEmail = emails.find((email) => email.primary);
 	if (!primaryEmail) throw new Error();
-	console.log(primaryEmail);
 	return {
 		username,
 		email: primaryEmail
