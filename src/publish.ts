@@ -35,6 +35,7 @@ export const publish = async () => {
 		const baseLocation = process.cwd();
 		console.log("publish!");
 		execute(
+			`pnpm exec cela.publish`,
 			`cd ${pkg.directoryPath}`,
 			"pnpm cela.publish",
 			`cd ${baseLocation}`
