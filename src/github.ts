@@ -76,7 +76,8 @@ export const getUser = async () => {
 				method: "GET"
 			});
 			return user.login;
-		} catch {
+		} catch (e) {
+			console.log(e)
 			throw new Error();
 		}
 	};
@@ -89,13 +90,14 @@ export const getUser = async () => {
 				}
 			);
 		} catch {
+			console.log(e)
 			throw new Error();
 		}
 	};
 
 	const username = await getUsername();
 	const emails = await getUserEmails();
-
+	console.log(emails)
 	const primaryEmail = emails.find((email) => email.primary);
 	if (!primaryEmail) throw new Error();
 	return {
