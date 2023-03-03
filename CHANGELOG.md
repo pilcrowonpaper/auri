@@ -1,5 +1,11 @@
 # cela
 
+## 2.3.0
+
+### Minor changes
+
+- By @pilcrowOnPaper : fix email
+
 ## 2.2.0
 
 ### Minor changes
