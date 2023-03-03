@@ -1,4 +1,4 @@
-name: "Cela ready"
+name: "Cela Prepare"
 on:
   push:
     branches:
