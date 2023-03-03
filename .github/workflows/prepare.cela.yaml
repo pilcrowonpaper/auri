@@ -40,4 +40,4 @@ jobs:
           pnpm install --no-frozen-lockfile
           pnpm build
       - name: run script
-        run: pnpm cela publish
+        run: pnpm cela.publish && pnpm cela publish
