@@ -121,6 +121,7 @@ export const prepare = async () => {
 	}[] = [];
 
 	for (const [packageName, changesets] of Object.entries(changesetsMap)) {
+		console.log(packageName, changesets)
 		const pkg = await getPackage(packageName);
 
 		const getNextVersion = (type: "patch" | "minor" | "major") => {
@@ -150,45 +151,7 @@ export const prepare = async () => {
 			nextVersion
 		});
 	}
-	const generateNewChangelogSection = (
-		update: {
-			package: Package;
-			nextVersion: string;
-			changesets: PackageChangesets;
-		},
-		versionHeadingLevel: number = 2
-	) => {
-		const getChangesetMdItem = (changeset: Changeset) => {
-			return `- ${
-				typeof changeset.prNumber === "number"
-					? `#${changeset.prNumber} by`
-					: "By"
-			} @${changeset.author}: ${changeset.content}`;
-		};
 
-		const newLogItems = [
-			`${"#".repeat(versionHeadingLevel)} ${update.nextVersion}`
-		];
-		if (update.changesets.major.length > 0) {
-			newLogItems.push(`${"#".repeat(versionHeadingLevel + 1)} Major changes`);
-			for (const changeset of update.changesets.major) {
-				newLogItems.push(getChangesetMdItem(changeset));
-			}
-		}
-		if (update.changesets.minor.length > 0) {
-			newLogItems.push(`${"#".repeat(versionHeadingLevel + 1)} Minor changes`);
-			for (const changeset of update.changesets.minor) {
-				newLogItems.push(getChangesetMdItem(changeset));
-			}
-		}
-		if (update.changesets.patch.length > 0) {
-			newLogItems.push(`${"#".repeat(versionHeadingLevel + 1)} Patch changes`);
-			for (const changeset of update.changesets.patch) {
-				newLogItems.push(getChangesetMdItem(changeset));
-			}
-		}
-		return newLogItems.join("\n\n");
-	};
 	for (const update of packagesToUpdate) {
 		const changelogPath = path.join(
 			update.package.directoryPath,
@@ -240,6 +203,8 @@ export const prepare = async () => {
 	}
 
 	const user = await getUser();
+
+	console.log(user)
 
 	execute(
 		`git config user.name "${user.username}"`,
@@ -309,4 +274,44 @@ ${packagesToUpdate
 			}
 		}
 	);
+};
+
+const generateNewChangelogSection = (
+	update: {
+		package: Package;
+		nextVersion: string;
+		changesets: PackageChangesets;
+	},
+	versionHeadingLevel: number = 2
+) => {
+	const getChangesetMdItem = (changeset: Changeset) => {
+		return `- ${
+			typeof changeset.prNumber === "number"
+				? `#${changeset.prNumber} by`
+				: "By"
+		} @${changeset.author}: ${changeset.content}`;
+	};
+
+	const newLogItems = [
+		`${"#".repeat(versionHeadingLevel)} ${update.nextVersion}`
+	];
+	if (update.changesets.major.length > 0) {
+		newLogItems.push(`${"#".repeat(versionHeadingLevel + 1)} Major changes`);
+		for (const changeset of update.changesets.major) {
+			newLogItems.push(getChangesetMdItem(changeset));
+		}
+	}
+	if (update.changesets.minor.length > 0) {
+		newLogItems.push(`${"#".repeat(versionHeadingLevel + 1)} Minor changes`);
+		for (const changeset of update.changesets.minor) {
+			newLogItems.push(getChangesetMdItem(changeset));
+		}
+	}
+	if (update.changesets.patch.length > 0) {
+		newLogItems.push(`${"#".repeat(versionHeadingLevel + 1)} Patch changes`);
+		for (const changeset of update.changesets.patch) {
+			newLogItems.push(getChangesetMdItem(changeset));
+		}
+	}
+	return newLogItems.join("\n\n");
 };
