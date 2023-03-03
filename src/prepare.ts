@@ -221,8 +221,8 @@ export const prepare = async (): Promise<void> => {
 	console.log(user.email);
 
 	execute(
-		`git config user.name "${user.username}"`,
-		`git config user.email "${user.email}"`,
+		`git config --global user.name "${user.username}"`,
+		`git config --global user.email "${user.email}"`,
 		`git checkout -b cela`,
 		`git add .`,
 		`git commit -m "update release"`,
