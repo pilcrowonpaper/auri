@@ -21,8 +21,13 @@ export const publish = async () => {
 		};
 		const publishedVersion = await getPublishedVersion();
 		const workingVersion = pkg.version;
+		console.log(publishedVersion, workingVersion);
 		if (publishedVersion === workingVersion) continue;
 		const baseLocation = process.cwd();
-		execute(`cd ${pkg.directoryPath}`, "pnpm cela.publish", `cd ${baseLocation}`);
+		execute(
+			`cd ${pkg.directoryPath}`,
+			"pnpm cela.publish",
+			`cd ${baseLocation}`
+		);
 	}
 };
