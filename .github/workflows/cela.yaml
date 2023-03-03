@@ -4,6 +4,8 @@ on:
     branches:
       - main
 
+env:
+  CELA_GITHUB_TOKEN: ${{secrets.CELA_GITHUB_TOKEN}}
 jobs:
   test:
     runs-on: ubuntu-latest
