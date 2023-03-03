@@ -196,6 +196,10 @@ export const prepare = async (): Promise<void> => {
 				...previousChangelogItems
 			].join("\n\n")
 		);
+		const packageConfig = structuredClone(update.package.config);
+		packageConfig.version = update.nextVersion;
+		const packageJson = JSON.stringify(packageConfig);
+		fs.writeFileSync(packageJson, packageJson);
 	}
 
 	const fileNames = fs.readdirSync(path.join(process.cwd(), CELA_DIR));
