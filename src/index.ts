@@ -14,7 +14,7 @@ if (!args[0]) kill();
 if (args[0] === "add") {
 	await addChangeset();
 }
-if (args[0] === "ready") {
+if (args[0] === "prepare") {
 	await prepare();
 }
 kill();

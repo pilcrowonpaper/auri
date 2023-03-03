@@ -275,6 +275,7 @@ export const prepare = async () => {
 	};
 
 	const existingPullRequestNumber = await getExistingPullRequest();
+	console.log(existingPullRequestNumber);
 	if (existingPullRequestNumber === null) {
 		await githubApiRequest(githubRepositoryApi("pulls"), {
 			method: "POST",
