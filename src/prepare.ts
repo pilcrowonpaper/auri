@@ -23,7 +23,7 @@ type PackageChangesets = {
 	major: Changeset[];
 };
 
-export const prepare = async () => {
+export const prepare = async (): Promise<void> => {
 	if (!fs.existsSync(path.resolve(CELA_DIR))) throw new Error();
 
 	const logFileNames = fs
@@ -229,8 +229,7 @@ export const prepare = async () => {
 				{
 					method: "GET",
 					queryParameters: {
-						head: `${repositoryOwner}:main`,
-						branch: "cela",
+						base: `${repositoryOwner}:cela`,
 						state: "open"
 					}
 				}
@@ -263,6 +262,7 @@ ${packagesToUpdate
 		});
 		return;
 	}
+
 	await githubApiRequest(
 		githubRepositoryApi("pulls", existingPullRequestNumber),
 		{
