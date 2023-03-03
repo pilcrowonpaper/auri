@@ -11,7 +11,7 @@ export const publish = async () => {
 			return contentName.startsWith("$") && contentName.endsWith(".md");
 		});
 	if (logFileNames.length > 0) return;
-    
+
 	const packages = await getPackages();
 	for (const pkg of packages) {
 		const getPublishedVersion = async () => {
