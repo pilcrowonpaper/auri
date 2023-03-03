@@ -25,7 +25,8 @@
 	"author": "lucia",
 	"license": "MIT",
 	"exports": {
-		".": "./dist/index.js"
+		"./package.json": "./package.json",
+		".": "./index.js"
 	},
 	"typesVersions": {
 		"*": {}
