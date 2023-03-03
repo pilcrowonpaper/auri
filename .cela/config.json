@@ -1,6 +1,6 @@
 {
 	"repository": "https://github.com/pilcrowOnPaper/cela",
 	"scripts": {
-		"format": "pnpm exec format"
+		"format": "pnpm format"
 	}
 }

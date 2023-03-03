@@ -16,7 +16,7 @@
 		"build": "shx rm -rf ./dist/* && tsc && shx cp ./package.json ./dist && shx cp ./README.md ./dist",
 		"release": "pnpm build && cd dist && pnpm install --no-frozen-lockfile && pnpm publish --no-git-checks --access public && cd ../",
 		"cela": "node ./dist/index.js",
-		"format": "pnpm  exec prettier -w .",
+		"format": "pnpm exec prettier -w .",
 		"cela.publish": "echo \"publish\""
 	},
 	"keywords": [],
