@@ -229,7 +229,8 @@ export const prepare = async (): Promise<void> => {
 				{
 					method: "GET",
 					queryParameters: {
-						base: `${repositoryOwner}:cela`,
+						base: `${repositoryOwner}:main`,
+						head: "cela",
 						state: "open"
 					}
 				}
