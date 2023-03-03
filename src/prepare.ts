@@ -191,7 +191,8 @@ export const prepare = async (): Promise<void> => {
 			path.join(update.package.directoryPath, "CHANGELOG.md"),
 			[
 				`# ${update.package.name}`,
-				generateNewChangelogSection(update),
+				`## ${update.nextVersion}`,
+				generatePackageChangelog(update, 3),
 				...previousChangelogItems
 			].join("\n\n")
 		);
@@ -241,7 +242,7 @@ export const prepare = async (): Promise<void> => {
 	};
 
 	const existingPullRequestNumber = await getExistingPullRequest();
-	
+
 	if (existingPullRequestNumber === null) {
 		await githubApiRequest(githubRepositoryApi("pulls"), {
 			method: "POST",
@@ -254,7 +255,7 @@ export const prepare = async (): Promise<void> => {
 ## Releases
 
 ${packagesToUpdate
-	.map((update) => generateNewChangelogSection(update, 3))
+	.map((update) => generatePackageChangelog(update, 3))
 	.join("\n")}`
 			}
 		});
@@ -271,48 +272,54 @@ ${packagesToUpdate
 ## Releases
 
 ${packagesToUpdate
-	.map((update) => generateNewChangelogSection(update, 3))
+	.map((update) => [
+		`### ${update.package.name}@${update.nextVersion}`,
+		generatePackageChangelog(update, 3)
+	])
+	.flat()
 	.join("\n")}`
 			}
 		}
 	);
 };
 
-const generateNewChangelogSection = (
+const generatePackageChangelog = (
 	update: {
 		package: Package;
 		nextVersion: string;
 		changesets: PackageChangesets;
 	},
-	versionHeadingLevel: number = 2
+	headingLevel: number
 ) => {
 	const getChangesetMdItem = (changeset: Changeset) => {
 		if (changeset.prNumber === null) {
-			return `- By @${changeset.author} : ${changeset.content}`; 
+			return `- By @${changeset.author} : ${changeset.content}`;
 		}
-		const repositoryUrl = new URL(config("repository"))
-		const prPathname = path.join(repositoryUrl.pathname, "pull", changeset.prNumber.toString())
-		const prUrl = new URL(prPathname, "https://github.com")
+		const repositoryUrl = new URL(config("repository"));
+		const prPathname = path.join(
+			repositoryUrl.pathname,
+			"pull",
+			changeset.prNumber.toString()
+		);
+		const prUrl = new URL(prPathname, "https://github.com");
 		return `- [#${changeset.prNumber}](${prUrl}) by @${changeset.author} : ${changeset.content}`;
 	};
 
-	const newLogItems = [
-		`${"#".repeat(versionHeadingLevel)} ${update.nextVersion}`
-	];
+	const newLogItems = [];
 	if (update.changesets.major.length > 0) {
-		newLogItems.push(`${"#".repeat(versionHeadingLevel + 1)} Major changes`);
+		newLogItems.push(`${"#".repeat(headingLevel)} Major changes`);
 		for (const changeset of update.changesets.major) {
 			newLogItems.push(getChangesetMdItem(changeset));
 		}
 	}
 	if (update.changesets.minor.length > 0) {
-		newLogItems.push(`${"#".repeat(versionHeadingLevel + 1)} Minor changes`);
+		newLogItems.push(`${"#".repeat(headingLevel)} Minor changes`);
 		for (const changeset of update.changesets.minor) {
 			newLogItems.push(getChangesetMdItem(changeset));
 		}
 	}
 	if (update.changesets.patch.length > 0) {
-		newLogItems.push(`${"#".repeat(versionHeadingLevel + 1)} Patch changes`);
+		newLogItems.push(`${"#".repeat(headingLevel)} Patch changes`);
 		for (const changeset of update.changesets.patch) {
 			newLogItems.push(getChangesetMdItem(changeset));
 		}
