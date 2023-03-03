@@ -1,0 +1,24 @@
+name: "Test"
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: setup actions
+        uses: actions/checkout@v3
+      - name: node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          registry-url: https://registry.npmjs.org
+      - name: install dependencies
+        run: |
+          npm i -g pnpm
+          pnpm install --no-frozen-lockfile
+          pnpm build
+      - name: run script
+        run: pnpm exec cela ready
