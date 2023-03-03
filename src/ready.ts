@@ -241,7 +241,7 @@ export const ready = async () => {
 		fileName.endsWith(".md")
 	);
 	for (const fileName of changesetFileNames) {
-		fs.rmSync(path.join(process.cwd(), fileName));
+		fs.rmSync(path.join(process.cwd(), CELA_DIR, fileName));
 	}
 
 	const user = await getUser();
