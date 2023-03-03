@@ -10,7 +10,7 @@
 		"**/*"
 	],
 	"bin": {
-		"cela": "./dist/index.js"
+		"cela": "./index.js"
 	},
 	"scripts": {
 		"build": "shx rm -rf ./dist/* && tsc && shx cp ./package.json ./dist && shx cp ./README.md ./dist",
@@ -25,7 +25,7 @@
 	"author": "lucia",
 	"license": "MIT",
 	"exports": {
-		".": "./index.js"
+		".": "./dist/index.js"
 	},
 	"typesVersions": {
 		"*": {}
