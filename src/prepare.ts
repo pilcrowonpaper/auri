@@ -121,7 +121,6 @@ export const prepare = async (): Promise<void> => {
 	}[] = [];
 
 	for (const [packageName, changesets] of Object.entries(changesetsMap)) {
-		console.log(packageName, changesets);
 		const pkg = await getPackage(packageName);
 
 		const getNextVersion = (type: "patch" | "minor" | "major") => {
@@ -208,8 +207,6 @@ export const prepare = async (): Promise<void> => {
 
 	const user = await getUser();
 
-	console.log(user);
-
 	execute(
 		`git config user.name "${user.username}"`,
 		`git config user.email "${user.email}"`,
@@ -244,7 +241,7 @@ export const prepare = async (): Promise<void> => {
 	};
 
 	const existingPullRequestNumber = await getExistingPullRequest();
-	console.log(existingPullRequestNumber);
+	
 	if (existingPullRequestNumber === null) {
 		await githubApiRequest(githubRepositoryApi("pulls"), {
 			method: "POST",
@@ -290,11 +287,13 @@ const generateNewChangelogSection = (
 	versionHeadingLevel: number = 2
 ) => {
 	const getChangesetMdItem = (changeset: Changeset) => {
-		return `- ${
-			typeof changeset.prNumber === "number"
-				? `#${changeset.prNumber} by`
-				: "By"
-		} @${changeset.author}: ${changeset.content}`;
+		if (changeset.prNumber === null) {
+			return `- By @${changeset.author} : ${changeset.content}`; 
+		}
+		const repositoryUrl = new URL(config("repository"))
+		const prPathname = path.join(repositoryUrl.pathname, "pull", changeset.prNumber.toString())
+		const prUrl = new URL(prPathname, "https://github.com")
+		return `- [#${changeset.prNumber}](${prUrl}) by @${changeset.author} : ${changeset.content}`;
 	};
 
 	const newLogItems = [

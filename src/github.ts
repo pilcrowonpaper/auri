@@ -67,19 +67,39 @@ export class GithubApiError extends Error {
 }
 
 export const getUser = async () => {
-	try {
-		const user = await githubApiRequest<{
-			login: string;
-			email: string;
-		}>(["user"], {
-			method: "GET"
-		});
-		return {
-			username: user.login,
-			email: user.email
-		};
-	} catch (e) {
-		console.log(e);
-		throw new Error();
-	}
+	const getUsername = async () => {
+		try {
+			const user = await githubApiRequest<{
+				login: string;
+				email: string;
+			}>(["user"], {
+				method: "GET"
+			});
+			return user.login;
+		} catch {
+			throw new Error();
+		}
+	};
+	const getUserEmails = async () => {
+		try {
+			return await githubApiRequest<{ email: string; primary: boolean }[]>(
+				["user", "emails"],
+				{
+					method: "GET"
+				}
+			);
+		} catch {
+			throw new Error();
+		}
+	};
+
+	const username = await getUsername();
+	const emails = await getUserEmails();
+
+	const primaryEmail = emails.find((email) => email.primary);
+	if (!primaryEmail) throw new Error();
+	return {
+		username,
+		email: primaryEmail
+	};
 };
