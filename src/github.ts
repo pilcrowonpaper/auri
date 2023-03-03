@@ -89,7 +89,7 @@ export const getUser = async () => {
 					method: "GET"
 				}
 			);
-		} catch {
+		} catch (e) {
 			console.log(e)
 			throw new Error();
 		}
