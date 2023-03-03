@@ -121,7 +121,7 @@ export const prepare = async () => {
 	}[] = [];
 
 	for (const [packageName, changesets] of Object.entries(changesetsMap)) {
-		console.log(packageName, changesets)
+		console.log(packageName, changesets);
 		const pkg = await getPackage(packageName);
 
 		const getNextVersion = (type: "patch" | "minor" | "major") => {
@@ -153,37 +153,41 @@ export const prepare = async () => {
 	}
 
 	for (const update of packagesToUpdate) {
-		const changelogPath = path.join(
-			update.package.directoryPath,
-			"CHANGELOG.md"
-		);
-		const changelogExists = fs.existsSync(changelogPath);
-		const changelogFile = changelogExists ? fs.readFileSync(changelogPath) : "";
-		// formatted: includes title
-		const currentFormattedChangelogItems = changelogFile
-			.toString()
-			.split("\n")
-			.filter((val) => !!val && val !== "\n");
-		const isChangelogPartiallyUpdated = currentFormattedChangelogItems.some(
-			(item) => item === `## ${update.nextVersion}`
-		);
-		if (!isChangelogPartiallyUpdated) {
-			// remove heading1
-			return currentFormattedChangelogItems.slice(1);
-		}
-		const targetVersionHeadingIndex = currentFormattedChangelogItems.findIndex(
-			(item) => item === `## ${update.nextVersion}`
-		);
-		const previousVersionHeadingIndex =
-			currentFormattedChangelogItems.findIndex((val, i) => {
-				return i > targetVersionHeadingIndex && val.startsWith(`## `);
-			});
-		const previousVersionHeadingExists = previousVersionHeadingIndex > -1;
-		if (!previousVersionHeadingExists) return [];
-		// remove title and partially created section for the target version
-		const previousChangelogItems = currentFormattedChangelogItems.slice(
-			previousVersionHeadingIndex
-		);
+		const getPreviousChangelogItems = () => {
+			const changelogPath = path.join(
+				update.package.directoryPath,
+				"CHANGELOG.md"
+			);
+			const changelogExists = fs.existsSync(changelogPath);
+			const changelogFile = changelogExists
+				? fs.readFileSync(changelogPath)
+				: "";
+			// formatted: includes title
+			const currentFormattedChangelogItems = changelogFile
+				.toString()
+				.split("\n")
+				.filter((val) => !!val && val !== "\n");
+			const isChangelogPartiallyUpdated = currentFormattedChangelogItems.some(
+				(item) => item === `## ${update.nextVersion}`
+			);
+			if (!isChangelogPartiallyUpdated) {
+				// remove heading1
+				currentFormattedChangelogItems.slice(1);
+			}
+			const targetVersionHeadingIndex =
+				currentFormattedChangelogItems.findIndex(
+					(item) => item === `## ${update.nextVersion}`
+				);
+			const previousVersionHeadingIndex =
+				currentFormattedChangelogItems.findIndex((val, i) => {
+					return i > targetVersionHeadingIndex && val.startsWith(`## `);
+				});
+			const previousVersionHeadingExists = previousVersionHeadingIndex > -1;
+			if (!previousVersionHeadingExists) return [];
+			// remove title and partially created section for the target version
+			return currentFormattedChangelogItems.slice(previousVersionHeadingIndex);
+		};
+		const previousChangelogItems = getPreviousChangelogItems();
 		fs.writeFileSync(
 			path.join(update.package.directoryPath, "CHANGELOG.md"),
 			[
@@ -204,7 +208,7 @@ export const prepare = async () => {
 
 	const user = await getUser();
 
-	console.log(user)
+	console.log(user);
 
 	execute(
 		`git config user.name "${user.username}"`,
