@@ -28,6 +28,7 @@ importers:
   dist:
     specifiers:
       '@types/node': ^18.14.4
+      cela: workspace:*
       dotenv: ^16.0.3
       front-matter: ^4.0.2
       nanoid: ^4.0.1
@@ -41,6 +42,7 @@ importers:
       nanoid: 4.0.1
     devDependencies:
       '@types/node': 18.14.4
+      cela: 'link:'
       prettier: 2.8.3
       shx: 0.3.4
       ts-node: 10.9.1_462mux2rw2dmpi4q7whwmq2slq
