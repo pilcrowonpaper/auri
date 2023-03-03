@@ -1,6 +1,7 @@
 import { addChangeset } from "./changeset.js";
 import { prepare } from "./prepare.js";
 import { validateConfig } from "./config.js";
+import { publish } from "./publish.js";
 
 validateConfig();
 
@@ -17,6 +18,9 @@ if (args[0] === "add") {
 if (args[0] === "prepare") {
 	await prepare();
 }
-kill();
 
-export {};
+if (args[0] === "publish") {
+	await publish();
+}
+
+kill();
