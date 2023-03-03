@@ -1,3 +1,4 @@
 {
-    "repository": "https://github.com/pilcrowOnPaper/cela"
+    "repository": "https://github.com/pilcrowOnPaper/cela",
+    "format_command": "pnpm exec prettier -w ."
 }

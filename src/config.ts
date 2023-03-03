@@ -4,6 +4,7 @@ import { CELA_DIR } from "./constant.js";
 
 type Config = {
 	repository: string;
+	format_command?: string
 };
 
 const configFilePath = path.resolve(path.join(CELA_DIR, "config.json"));

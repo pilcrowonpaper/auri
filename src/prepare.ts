@@ -7,6 +7,7 @@ import { Package, getPackage, getPackages } from "./project.js";
 import { getUser, githubApiRequest, githubRepositoryApi } from "./github.js";
 import { config } from "./config.js";
 import { execute } from "./execute.js";
+import { formatRepository } from "./format.js";
 
 type GithubPullRequest = {
 	number: number;
@@ -201,6 +202,8 @@ export const prepare = async (): Promise<void> => {
 		const packageJson = JSON.stringify(packageConfig);
 		fs.writeFileSync(update.package.packageJsonPath, packageJson);
 	}
+
+	formatRepository();
 
 	const fileNames = fs.readdirSync(path.join(process.cwd(), CELA_DIR));
 	const changesetFileNames = fileNames.filter((fileName) =>
