@@ -243,6 +243,18 @@ export const prepare = async (): Promise<void> => {
 
 	const existingPullRequestNumber = await getExistingPullRequest();
 
+	const changesBody = packagesToUpdate
+		.map((update) => [
+			`### ${update.package.name}@${update.nextVersion}`,
+			generatePackageChangelog(update, 4)
+		])
+		.join("\n");
+	const prBody = `This is a pull request automatically created by Cela. You can approve this pull request to update changelogs and publish packages.
+
+## Releases
+
+${changesBody}`;
+
 	if (existingPullRequestNumber === null) {
 		await githubApiRequest(githubRepositoryApi("pulls"), {
 			method: "POST",
@@ -250,13 +262,7 @@ export const prepare = async (): Promise<void> => {
 				title: "CI: Release",
 				head: "cela",
 				base: "main",
-				body: `This is a pull request automatically created by Cela. You can approve this pull request to update changelogs and publish packages.
-
-## Releases
-
-${packagesToUpdate
-	.map((update) => generatePackageChangelog(update, 3))
-	.join("\n")}`
+				body: prBody
 			}
 		});
 		return;
@@ -267,17 +273,7 @@ ${packagesToUpdate
 		{
 			method: "PATCH",
 			body: {
-				body: `This is a pull request automatically created by Cela. You can approve this pull request to update changelogs and publish packages.
-
-## Releases
-
-${packagesToUpdate
-	.map((update) => [
-		`### ${update.package.name}@${update.nextVersion}`,
-		generatePackageChangelog(update, 3)
-	])
-	.flat()
-	.join("\n")}`
+				body: prBody
 			}
 		}
 	);
