@@ -150,14 +150,46 @@ export const prepare = async () => {
 			nextVersion
 		});
 	}
-	const generateChangelog = (
+	const generateNewChangelogSection = (
 		update: {
 			package: Package;
 			nextVersion: string;
 			changesets: PackageChangesets;
 		},
-		topHeadingLevel: number = 1
+		versionHeadingLevel: number = 2
 	) => {
+		const getChangesetMdItem = (changeset: Changeset) => {
+			return `- ${
+				typeof changeset.prNumber === "number"
+					? `#${changeset.prNumber} by`
+					: "By"
+			} @${changeset.author}: ${changeset.content}`;
+		};
+
+		const newLogItems = [
+			`${"#".repeat(versionHeadingLevel)} ${update.nextVersion}`
+		];
+		if (update.changesets.major.length > 0) {
+			newLogItems.push(`${"#".repeat(versionHeadingLevel + 1)} Major changes`);
+			for (const changeset of update.changesets.major) {
+				newLogItems.push(getChangesetMdItem(changeset));
+			}
+		}
+		if (update.changesets.minor.length > 0) {
+			newLogItems.push(`${"#".repeat(versionHeadingLevel + 1)} Minor changes`);
+			for (const changeset of update.changesets.minor) {
+				newLogItems.push(getChangesetMdItem(changeset));
+			}
+		}
+		if (update.changesets.patch.length > 0) {
+			newLogItems.push(`${"#".repeat(versionHeadingLevel + 1)} Patch changes`);
+			for (const changeset of update.changesets.patch) {
+				newLogItems.push(getChangesetMdItem(changeset));
+			}
+		}
+		return newLogItems.join("\n\n");
+	};
+	for (const update of packagesToUpdate) {
 		const changelogPath = path.join(
 			update.package.directoryPath,
 			"CHANGELOG.md"
@@ -169,72 +201,33 @@ export const prepare = async () => {
 			.toString()
 			.split("\n")
 			.filter((val) => !!val && val !== "\n");
-		const getPreviousVersionChangelog = () => {
-			const isChangelogPartiallyUpdated = currentFormattedChangelogItems.some(
-				(item) =>
-					item === `${"#".repeat(topHeadingLevel + 1)} ${update.nextVersion}`
-			);
-			if (!isChangelogPartiallyUpdated) {
-				// remove heading1
-				return currentFormattedChangelogItems.slice(1);
-			}
-			const targetVersionHeadingIndex =
-				currentFormattedChangelogItems.findIndex(
-					(item) =>
-						item === `${"#".repeat(topHeadingLevel + 1)} ${update.nextVersion}`
-				);
-			const previousVersionHeadingIndex =
-				currentFormattedChangelogItems.findIndex((val, i) => {
-					return (
-						i > targetVersionHeadingIndex &&
-						val.startsWith(`${"#".repeat(topHeadingLevel + 1)} `)
-					);
-				});
-			const previousVersionHeadingExists = previousVersionHeadingIndex > -1;
-			if (!previousVersionHeadingExists) return [];
-			// remove title and partially created section for the target version
-			return currentFormattedChangelogItems.slice(previousVersionHeadingIndex);
-		};
-		const previousChangelogItems = getPreviousVersionChangelog();
-		const getChangesetMdItem = (changeset: Changeset) => {
-			return `- ${
-				typeof changeset.prNumber === "number"
-					? `#${changeset.prNumber} by`
-					: "By"
-			} @${changeset.author}: ${changeset.content}`;
-		};
-
-		const newLogItems = [
-			`${"#".repeat(topHeadingLevel + 1)} ${update.nextVersion}`
-		];
-		if (update.changesets.major.length > 0) {
-			newLogItems.push(`${"#".repeat(topHeadingLevel + 2)} Major changes`);
-			for (const changeset of update.changesets.major) {
-				newLogItems.push(getChangesetMdItem(changeset));
-			}
+		const isChangelogPartiallyUpdated = currentFormattedChangelogItems.some(
+			(item) => item === `## ${update.nextVersion}`
+		);
+		if (!isChangelogPartiallyUpdated) {
+			// remove heading1
+			return currentFormattedChangelogItems.slice(1);
 		}
-		if (update.changesets.minor.length > 0) {
-			newLogItems.push(`${"#".repeat(topHeadingLevel + 2)} Minor changes`);
-			for (const changeset of update.changesets.minor) {
-				newLogItems.push(getChangesetMdItem(changeset));
-			}
-		}
-		if (update.changesets.patch.length > 0) {
-			newLogItems.push(`${"#".repeat(topHeadingLevel + 2)} Patch changes`);
-			for (const changeset of update.changesets.patch) {
-				newLogItems.push(getChangesetMdItem(changeset));
-			}
-		}
-		return [
-			`${"#".repeat(topHeadingLevel)} ${update.package.name}`,
-			...newLogItems,
-			...previousChangelogItems
-		].join("\n\n");
-	};
-	for (const update of packagesToUpdate) {
+		const targetVersionHeadingIndex = currentFormattedChangelogItems.findIndex(
+			(item) => item === `## ${update.nextVersion}`
+		);
+		const previousVersionHeadingIndex =
+			currentFormattedChangelogItems.findIndex((val, i) => {
+				return i > targetVersionHeadingIndex && val.startsWith(`## `);
+			});
+		const previousVersionHeadingExists = previousVersionHeadingIndex > -1;
+		if (!previousVersionHeadingExists) return [];
+		// remove title and partially created section for the target version
+		const previousChangelogItems = currentFormattedChangelogItems.slice(
+			previousVersionHeadingIndex
+		);
 		fs.writeFileSync(
 			path.join(update.package.directoryPath, "CHANGELOG.md"),
-			generateChangelog(update)
+			[
+				`# ${update.package.name}`,
+				generateNewChangelogSection(update),
+				...previousChangelogItems
+			].join("\n\n")
 		);
 	}
 
@@ -293,7 +286,9 @@ export const prepare = async () => {
 
 ## Releases
 
-${packagesToUpdate.map((update) => generateChangelog(update, 2)).join("\n")}`
+${packagesToUpdate
+	.map((update) => generateNewChangelogSection(update, 3))
+	.join("\n")}`
 			}
 		});
 		return;
@@ -307,7 +302,9 @@ ${packagesToUpdate.map((update) => generateChangelog(update, 2)).join("\n")}`
 
 ## Releases
 
-${packagesToUpdate.map((update) => generateChangelog(update, 2)).join("\n")}`
+${packagesToUpdate
+	.map((update) => generateNewChangelogSection(update, 3))
+	.join("\n")}`
 			}
 		}
 	);
