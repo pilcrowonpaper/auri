@@ -1,5 +1,11 @@
 # cela
 
+## 1.1.0
+
+### Minor changes
+
+- By @pilcrowOnPaper : check if publish script is running
+
 ## 1.0.1
 
 ### Patch changes
