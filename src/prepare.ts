@@ -199,7 +199,7 @@ export const prepare = async (): Promise<void> => {
 		const packageConfig = structuredClone(update.package.config);
 		packageConfig.version = update.nextVersion;
 		const packageJson = JSON.stringify(packageConfig);
-		fs.writeFileSync(packageJson, packageJson);
+		fs.writeFileSync(update.package.packageJsonPath, packageJson);
 	}
 
 	const fileNames = fs.readdirSync(path.join(process.cwd(), CELA_DIR));
