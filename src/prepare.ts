@@ -248,6 +248,7 @@ export const prepare = async (): Promise<void> => {
 			`### ${update.package.name}@${update.nextVersion}`,
 			generatePackageChangelog(update, 4)
 		])
+		.flat()
 		.join("\n");
 	const prBody = `This is a pull request automatically created by Cela. You can approve this pull request to update changelogs and publish packages.
 
