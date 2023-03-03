@@ -78,7 +78,8 @@ export const getUser = async () => {
 			username: user.login,
 			email: user.email
 		};
-	} catch {
+	} catch (e) {
+		console.log(e);
 		throw new Error();
 	}
 };

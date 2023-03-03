@@ -24,7 +24,6 @@ type PackageChangesets = {
 };
 
 export const prepare = async () => {
-	console.log("ready!")
 	if (!fs.existsSync(path.resolve(CELA_DIR))) throw new Error();
 
 	const logFileNames = fs
@@ -80,7 +79,8 @@ export const prepare = async () => {
 				const latestCommit = commits.at(0) ?? null;
 				if (!latestCommit) throw new Error();
 				return latestCommit;
-			} catch {
+			} catch (e) {
+				console.log(e);
 				throw new Error();
 			}
 		};
@@ -95,7 +95,8 @@ export const prepare = async () => {
 				);
 				const latestPullRequest = pullRequests.at(0) ?? null;
 				return latestPullRequest;
-			} catch {
+			} catch (e) {
+				console.log(e);
 				throw new Error();
 			}
 		};
@@ -274,7 +275,8 @@ export const prepare = async () => {
 			);
 			if (pullRequests.length > 0) return pullRequests[0].number;
 			return null;
-		} catch {
+		} catch (e) {
+			console.log(e);
 			throw new Error();
 		}
 	};
@@ -296,14 +298,17 @@ ${packagesToUpdate.map((update) => generateChangelog(update, 2)).join("\n")}`
 		});
 		return;
 	}
-	await githubApiRequest(githubRepositoryApi("pulls", existingPullRequestNumber), {
-		method: "PATCH",
-		body: {
-			body: `This is a pull request automatically created by Cela. You can approve this pull request to update changelogs and publish packages.
+	await githubApiRequest(
+		githubRepositoryApi("pulls", existingPullRequestNumber),
+		{
+			method: "PATCH",
+			body: {
+				body: `This is a pull request automatically created by Cela. You can approve this pull request to update changelogs and publish packages.
 
 ## Releases
 
 ${packagesToUpdate.map((update) => generateChangelog(update, 2)).join("\n")}`
+			}
 		}
-	});
+	);
 };
