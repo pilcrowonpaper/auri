@@ -21,4 +21,4 @@ jobs:
           pnpm install --no-frozen-lockfile
           pnpm build
       - name: run script
-        run: pnpm exec cela ready
+        run: pnpm cela
