@@ -1,7 +1,17 @@
+import { CELA_DIR } from "./constant.js";
 import { execute } from "./execute.js";
 import { getPackages } from "./project.js";
+import fs from "fs";
+import path from "path";
 
 export const publish = async () => {
+	const logFileNames = fs
+		.readdirSync(path.resolve(CELA_DIR))
+		.filter((contentName) => {
+			return contentName.startsWith("$") && contentName.endsWith(".md");
+		});
+	if (logFileNames.length > 0) return;
+    
 	const packages = await getPackages();
 	for (const pkg of packages) {
 		const getPublishedVersion = async () => {

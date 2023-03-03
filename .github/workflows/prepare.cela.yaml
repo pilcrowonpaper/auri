@@ -1,4 +1,4 @@
-name: "Cela Prepare"
+name: "Cela"
 on:
   push:
     branches:
@@ -7,7 +7,7 @@ on:
 env:
   CELA_GITHUB_TOKEN: ${{secrets.CELA_GITHUB_TOKEN}}
 jobs:
-  test:
+  prepare:
     runs-on: ubuntu-latest
     steps:
       - name: setup actions
@@ -24,3 +24,20 @@ jobs:
           pnpm build
       - name: run script
         run: pnpm cela prepare
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: setup actions
+        uses: actions/checkout@v3
+      - name: node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          registry-url: https://registry.npmjs.org
+      - name: install dependencies
+        run: |
+          npm i -g pnpm
+          pnpm install --no-frozen-lockfile
+          pnpm build
+      - name: run script
+        run: pnpm cela publish

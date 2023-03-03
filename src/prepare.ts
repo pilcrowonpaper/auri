@@ -32,6 +32,8 @@ export const prepare = async (): Promise<void> => {
 		.filter((contentName) => {
 			return contentName.startsWith("$") && contentName.endsWith(".md");
 		});
+	if (logFileNames.length === 0) return;
+
 	const allPackages = await getPackages();
 
 	const changesetsMap: Record<string, PackageChangesets> = {};
@@ -151,6 +153,8 @@ export const prepare = async (): Promise<void> => {
 			nextVersion
 		});
 	}
+
+	if (packagesToUpdate.length === 0) return;
 
 	for (const update of packagesToUpdate) {
 		const getPreviousChangelogItems = () => {
