@@ -1,5 +1,11 @@
 # cela
 
+## 1.0.1
+
+### Patch changes
+
+- [#4](https://github.com/pilcrowOnPaper/cela/pull/4) by @pilcrowOnPaper : Add `publish` script
+
 ## 1.0.0
 
 ### Major changes
