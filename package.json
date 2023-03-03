@@ -17,7 +17,7 @@
 		"release": "pnpm build && cd dist && pnpm install --no-frozen-lockfile && pnpm publish --no-git-checks --access public && cd ../",
 		"cela": "node ./dist/index.js",
 		"format": "pnpm exec prettier -w .",
-		"cela.publish": "echo \"publish\""
+		"cela.publish": "echo \"publish!!!!\""
 	},
 	"keywords": [],
 	"repository": {
