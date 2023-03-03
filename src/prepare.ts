@@ -23,7 +23,8 @@ type PackageChangesets = {
 	major: Changeset[];
 };
 
-export const ready = async () => {
+export const prepare = async () => {
+	console.log("ready!")
 	if (!fs.existsSync(path.resolve(CELA_DIR))) throw new Error();
 
 	const logFileNames = fs
@@ -56,7 +57,7 @@ export const ready = async () => {
 				major: []
 			};
 		}
-		const logId = fileName.split(".").slice(0, -1).join(".");
+		const changesetId = fileName.split(".").slice(0, -1).join(".");
 
 		type GithubCommit = {
 			sha: string;
@@ -72,7 +73,7 @@ export const ready = async () => {
 					{
 						method: "GET",
 						queryParameters: {
-							path: `/.cela/${logId}.md`
+							path: `/.cela/${changesetId}.md`
 						}
 					}
 				);

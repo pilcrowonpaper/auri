@@ -1,4 +1,4 @@
-name: "Test"
+name: "Cela ready"
 on:
   push:
     branches:
