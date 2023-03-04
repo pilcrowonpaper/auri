@@ -1,5 +1,15 @@
 # auri
 
+## 0.2.0
+
+### Minor changes
+
+- [#12](https://github.com/pilcrowOnPaper/auri/pull/12) by [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : Don't publish if package doesn't exist on NPM
+
+### Patch changes
+
+- [#12](https://github.com/pilcrowOnPaper/auri/pull/12) by [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : Link to author in changelog
+
 ## 0.1.0
 
 ### Minor changes

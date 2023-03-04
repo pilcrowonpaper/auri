@@ -303,7 +303,7 @@ const generatePackageChangelog = (
 		const authorLink = `[@${changeset.author}](${new URL(
 			changeset.author,
 			"https://github.com"
-		)})`
+		)})`;
 		if (changeset.prNumber === null) {
 			return `- By ${authorLink} : ${changeset.content}`;
 		}
