@@ -1,5 +1,11 @@
 # auri
 
+## 0.2.5
+
+### Patch changes
+
+- By [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : more debug
+
 ## 0.2.4
 
 ### Patch changes
