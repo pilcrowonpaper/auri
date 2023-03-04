@@ -1,5 +1,11 @@
 # auri
 
+## 0.3.0
+
+### Minor changes
+
+- By [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : Fix issue with file system API
+
 ## 0.2.6
 
 ### Patch changes
