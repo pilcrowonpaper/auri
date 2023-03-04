@@ -76,7 +76,6 @@ export const publish = async () => {
 		if (publishedVersion === null) continue;
 		if (publishedVersion === workingVersion) continue;
 		const baseLocation = process.cwd();
-		execute("pnpm auri.publish");
 		execute(
 			`cd ${pkg.directoryPath}`,
 			"pnpm auri.publish",
