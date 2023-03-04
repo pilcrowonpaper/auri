@@ -18,7 +18,7 @@
 		"auri": "node ./dist/index.js",
 		"format": "pnpm exec prettier -w ."
 	},
-	"keywords": [],
+	"keywords": ["auri", "npm"],
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/pilcrowOnPaper/auri",
