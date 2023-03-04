@@ -1,5 +1,11 @@
 # auri
 
+## 0.3.1
+
+### Patch changes
+
+- By [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : Fix publish command
+
 ## 0.3.0
 
 ### Minor changes
