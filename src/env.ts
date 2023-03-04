@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import { error } from "./error";
+import { error } from "./error.js";
 dotenv.config();
 
 type EnvVar = "AURI_GITHUB_TOKEN";

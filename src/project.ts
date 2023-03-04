@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { error } from "./error";
+import { error } from "./error.js";
 
 export type Package = {
 	name: string;
