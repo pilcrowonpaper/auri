@@ -1,6 +1,6 @@
 {
 	"name": "auri",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"description": "Organize package changes and releases",
 	"main": "index.js",
 	"types": "index.d.ts",
@@ -18,7 +18,10 @@
 		"auri": "node ./dist/index.js",
 		"format": "pnpm exec prettier -w ."
 	},
-	"keywords": ["auri", "npm"],
+	"keywords": [
+		"auri",
+		"npm"
+	],
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/pilcrowOnPaper/auri",
