@@ -21,13 +21,22 @@ const kill = () => process.exit();
 if (!args[0]) kill();
 
 if (args[0] === "add") {
+	if (isDebugEnabled) {
+		console.log("running add");
+	}
 	await addChangeset();
 }
 if (args[0] === "prepare") {
+	if (isDebugEnabled) {
+		console.log("running prepare");
+	}
 	await prepare();
 }
 
 if (args[0] === "publish") {
+	if (isDebugEnabled) {
+		console.log("running publish");
+	}
 	await publish();
 }
 

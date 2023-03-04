@@ -30,6 +30,8 @@ type PackageChangesets = {
 	major: Changeset[];
 };
 
+const isDebugEnabled = config("debug") ?? false;
+
 export const prepare = async (): Promise<void> => {
 	if (!fs.existsSync(path.resolve(AURI_DIR)))
 		return error("Directory .auri does not exist");
@@ -39,6 +41,12 @@ export const prepare = async (): Promise<void> => {
 		.filter((contentName) => {
 			return contentName.startsWith("$") && contentName.endsWith(".md");
 		});
+
+	if (isDebugEnabled) {
+		console.log("log files: ");
+		console.log(logFileNames);
+	}
+
 	if (logFileNames.length === 0) return;
 
 	const allPackages = await getPackages();
