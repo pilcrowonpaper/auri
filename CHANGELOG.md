@@ -1,5 +1,11 @@
 # auri
 
+## 0.2.2
+
+### Patch changes
+
+- By [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : Add instructions on repository settings
+
 ## 0.2.1
 
 ### Patch changes
