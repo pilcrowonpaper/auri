@@ -1,5 +1,11 @@
 # auri
 
+## 0.3.3
+
+### Patch changes
+
+- By [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : Add `ignore` config
+
 ## 0.3.2
 
 ### Patch changes
