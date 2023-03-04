@@ -23,6 +23,7 @@ yarn auri
 3. Generate a Github personal access token with the following scopes: **`repo`, `user:email`**
 4. Store the token as `AURI_GITHUB_TOKEN` in Github actions secrets
 5. Add `auri.publish` script to each package's package.json - this will be the command Auri will use to publish
+6. Make sure "Read and write permission" is enabled in repository settings > Actions > General > Workflow permissions
 
 ## Config
 
