@@ -1,6 +1,7 @@
 import { config } from "./config.js";
 import path from "path";
 import { env } from "./env.js";
+import { error, githubApiError } from "./error.js";
 
 export const githubRepositoryApi = (
 	...localPathSegments: (string | number)[]
@@ -53,16 +54,18 @@ export const githubApiRequest = async <T extends any = void>(
 		} catch {
 			errorMessage = "Unknown error";
 		}
-		throw new GithubApiError(errorMessage, status);
+		throw new GithubApiError(errorMessage, status, url.toString());
 	}
 	return (await response.json()) as T;
 };
 
 export class GithubApiError extends Error {
 	public status: number;
-	constructor(message: string, status: number) {
+	public url: string;
+	constructor(message: string, status: number, url: string) {
 		super(message);
 		this.status = status;
+		this.url = url;
 	}
 }
 
@@ -77,8 +80,8 @@ export const getUser = async () => {
 			});
 			return user.login;
 		} catch (e) {
-			console.log(e);
-			throw new Error();
+			if (e instanceof GithubApiError) githubApiError(e)
+			return error("Unknown error occurred")
 		}
 	};
 	const getUserEmails = async () => {
@@ -90,15 +93,15 @@ export const getUser = async () => {
 				}
 			);
 		} catch (e) {
-			console.log(e);
-			throw new Error();
+			if (e instanceof GithubApiError) githubApiError(e)
+			return error("Unknown error occurred")
 		}
 	};
 
 	const username = await getUsername();
 	const emails = await getUserEmails();
 	const primaryEmail = emails.find((email) => email.primary);
-	if (!primaryEmail) throw new Error();
+	if (!primaryEmail) return error("Primary email not defined")
 	return {
 		username,
 		email: primaryEmail.email

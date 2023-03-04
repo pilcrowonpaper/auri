@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { AURI_DIR } from "./constant.js";
+import { error } from "./error.js";
 
 type Config = {
 	repository: string;
@@ -51,11 +52,10 @@ export const config = <K extends FlatKey<Config>>(key: K) => {
 };
 
 export const validateConfig = () => {
-	if (!fs.existsSync(configFilePath))
-		throw new Error(".auri/config.json does not exist");
+	if (!fs.existsSync(configFilePath)) error(".auri/config.json does not exist");
 	const configJsonFile = fs.readFileSync(configFilePath);
 	const configJson = configJsonFile.toString();
 	const parsedConfig = JSON.parse(configJson) as Partial<Config>;
 	if (!("repository" in parsedConfig))
-		throw new Error(`"repository" is not defined in .auri/config.json`);
+		error(`"repository" is not defined in .auri/config.json`);
 };

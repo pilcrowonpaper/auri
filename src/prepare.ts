@@ -4,10 +4,16 @@ import frontmatter from "front-matter";
 
 import { AURI_DIR } from "./constant.js";
 import { Package, getPackage, getPackages } from "./project.js";
-import { getUser, githubApiRequest, githubRepositoryApi } from "./github.js";
+import {
+	GithubApiError,
+	getUser,
+	githubApiRequest,
+	githubRepositoryApi
+} from "./github.js";
 import { config } from "./config.js";
 import { execute } from "./execute.js";
 import { formatRepository } from "./format.js";
+import { error, githubApiError } from "./error.js";
 
 type GithubPullRequest = {
 	number: number;
@@ -25,7 +31,8 @@ type PackageChangesets = {
 };
 
 export const prepare = async (): Promise<void> => {
-	if (!fs.existsSync(path.resolve(AURI_DIR))) throw new Error();
+	if (!fs.existsSync(path.resolve(AURI_DIR)))
+		return error("Directory .auri does not exist");
 
 	const logFileNames = fs
 		.readdirSync(path.resolve(AURI_DIR))
@@ -80,11 +87,11 @@ export const prepare = async (): Promise<void> => {
 					}
 				);
 				const latestCommit = commits.at(0) ?? null;
-				if (!latestCommit) throw new Error();
+				if (!latestCommit) return error("Unknown commit");
 				return latestCommit;
 			} catch (e) {
-				console.log(e);
-				throw new Error();
+				if (e instanceof GithubApiError) githubApiError(e);
+				return error("Unknown error occurred");
 			}
 		};
 
@@ -99,8 +106,8 @@ export const prepare = async (): Promise<void> => {
 				const latestPullRequest = pullRequests.at(0) ?? null;
 				return latestPullRequest;
 			} catch (e) {
-				console.log(e);
-				throw new Error();
+				if (e instanceof GithubApiError) githubApiError(e);
+				return error("Unknown error occurred");
 			}
 		};
 
@@ -231,7 +238,7 @@ export const prepare = async (): Promise<void> => {
 	const getExistingPullRequest = async () => {
 		const repositoryUrl = new URL(config("repository"));
 		const repositoryOwner = repositoryUrl.pathname.split("/").at(1) ?? null;
-		if (repositoryOwner === null) throw new Error();
+		if (repositoryOwner === null) return error("Invalid config.repository url")
 		try {
 			const pullRequests = await githubApiRequest<GithubPullRequest[]>(
 				githubRepositoryApi("pulls"),
@@ -247,8 +254,8 @@ export const prepare = async (): Promise<void> => {
 			if (pullRequests.length > 0) return pullRequests[0].number;
 			return null;
 		} catch (e) {
-			console.log(e);
-			throw new Error();
+			if (e instanceof GithubApiError) githubApiError(e);
+			return error("Unknown error occurred");
 		}
 	};
 

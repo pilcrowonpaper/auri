@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { error } from "./error";
 
 export type Package = {
 	name: string;
@@ -76,6 +77,6 @@ const readdirRecursiveFileSync = (absolutePath = process.cwd()) => {
 export const getPackage = async (packageName: string) => {
 	const packages = await getPackages();
 	const searchResult = packages.find((pkg) => pkg.name === packageName) ?? null;
-	if (!searchResult) throw new Error(`Package ${packageName} does not exist`);
+	if (!searchResult) return error(`Package ${packageName} does not exist`);
 	return searchResult;
 };
