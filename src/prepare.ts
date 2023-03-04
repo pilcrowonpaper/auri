@@ -52,7 +52,7 @@ export const prepare = async (): Promise<void> => {
 	const allPackages = await getPackages();
 
 	if (isDebugEnabled) {
-		console.log("packages");
+		console.log("all packages");
 		console.log(allPackages.map((val) => val.name));
 	}
 

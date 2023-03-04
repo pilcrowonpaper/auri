@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { error } from "./error.js";
+import { config } from "./config.js";
 
 export type Package = {
 	name: string;
@@ -13,6 +14,8 @@ export type Package = {
 	};
 };
 
+const isDebugEnabled = config("debug") ?? false;
+
 export const getPackages = async (): Promise<Package[]> => {
 	const workspaceFileRelativePaths = readdirRecursiveFileSync();
 	const packageJsonRelativePaths = workspaceFileRelativePaths.filter(
@@ -20,6 +23,11 @@ export const getPackages = async (): Promise<Package[]> => {
 			return relativePath.split("/").at(-1) === "package.json";
 		}
 	);
+	if (isDebugEnabled) {
+		console.log("package.json in repository");
+		console.log(packageJsonRelativePaths);
+	}
+
 	return packageJsonRelativePaths.map((relativePath) => {
 		const absolutePath = path.resolve(process.cwd(), relativePath);
 		const file = fs.readFileSync(absolutePath);
