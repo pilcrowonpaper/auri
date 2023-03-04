@@ -1,4 +1,5 @@
 import { AURI_DIR } from "./constant.js";
+import { error } from "./error.js";
 import { execute } from "./execute.js";
 import { getPackages } from "./project.js";
 import fs from "fs";
@@ -19,7 +20,22 @@ export const publish = async () => {
 			const npmRegistryResponse = await fetch(npmRegistryUrl);
 			if (!npmRegistryResponse.ok) {
 				if (npmRegistryResponse.status === 404) return null;
-				throw new Error();
+				try {
+					const errorData = (await npmRegistryResponse.json()) as {
+						error?: string;
+					};
+					return error(
+						`NPM Registry API error: ${npmRegistryResponse.status} - ${
+							errorData?.error ?? "Unknown error"
+						}`,
+						`Unsuccessful response from ${npmRegistryUrl.toString()}`
+					);
+				} catch {
+					return error(
+						`NPM Registry API error: ${npmRegistryResponse.status} - Unknown error}`,
+						`Unsuccessful response from ${npmRegistryUrl.toString()}`
+					);
+				}
 			}
 			const npmRegistry = (await npmRegistryResponse.json()) as {
 				versions: Record<string, any>;
