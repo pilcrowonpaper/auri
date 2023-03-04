@@ -1,5 +1,11 @@
 # auri
 
+## 0.2.4
+
+### Patch changes
+
+- By [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : Add `scripts.publish_setup`
+
 ## 0.2.3
 
 ### Patch changes
