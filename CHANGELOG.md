@@ -1,5 +1,11 @@
 # auri
 
+## 0.3.2
+
+### Patch changes
+
+- By [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : Fix publish script running publish command twice
+
 ## 0.3.1
 
 ### Patch changes
