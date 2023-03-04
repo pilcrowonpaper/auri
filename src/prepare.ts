@@ -367,7 +367,7 @@ const generatePackageChangelog = (
 		return `- [#${changeset.prNumber}](${prUrl}) by ${authorLink} : ${changeset.content}`;
 	};
 
-	const newLogItems = [];
+	const newLogItems: string[] = [];
 	if (update.changesets.major.length > 0) {
 		newLogItems.push(`${"#".repeat(headingLevel)} Major changes`);
 		for (const changeset of update.changesets.major) {

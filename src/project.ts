@@ -65,7 +65,7 @@ const readdirRecursiveFileSync = (
 			return filePath.slice(0, -1);
 		})
 		.filter((path) => path !== workingAbsolutePath);
-	const absoluteFilePaths = [];
+	const absoluteFilePaths: string[] = [];
 	const dirItemNames = fs.readdirSync(workingAbsolutePath);
 	for (const itemName of dirItemNames) {
 		const absoluteItemPath = path.join(workingAbsolutePath, itemName);

@@ -14,13 +14,14 @@
 	},
 	"scripts": {
 		"build": "shx rm -rf ./dist/* && tsc && shx cp ./package.json ./dist && shx cp ./README.md ./dist",
-		"auri.publish": "pnpm build && cd dist && pnpm install --no-frozen-lockfile && pnpm publish --no-git-checks --access public && cd ../",
+		"auri.publish": "pnpm build && shx rm -rf ./package.json && cd dist && pnpm publish --no-git-checks --access public && cd ../ && shx cp ./dist/package.json ./ && shx rm -rf ./dist/*",
 		"auri": "node ./dist/index.js",
 		"format": "pnpm exec prettier -w ."
 	},
 	"keywords": [
 		"auri",
-		"npm"
+		"npm",
+		"changesets"
 	],
 	"repository": {
 		"type": "git",
