@@ -29,7 +29,7 @@ export const publish = async () => {
 	}
 
 	if (publishSetupScript) {
-		execute(publishSetupScript);
+		execute([publishSetupScript]);
 	}
 
 	const packages = await getPackages();
@@ -75,11 +75,9 @@ export const publish = async () => {
 		}
 		if (publishedVersion === null) continue;
 		if (publishedVersion === workingVersion) continue;
-		const baseLocation = process.cwd();
-		execute(
-			`cd ${pkg.directoryPath}`,
-			"pnpm auri.publish",
-			`cd ${baseLocation}`
-		);
+
+		execute(["pnpm auri.publish"], {
+			cwd: pkg.directoryPath
+		});
 	}
 };

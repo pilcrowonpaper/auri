@@ -269,14 +269,14 @@ export const prepare = async (): Promise<void> => {
 
 	const user = await getUser();
 
-	execute(
+	execute([
 		`git config --global user.name "${user.username}"`,
 		`git config --global user.email "${user.email}"`,
 		`git checkout -b auri`,
 		`git add .`,
 		`git commit -m "update release"`,
 		`git push -f -u origin HEAD`
-	);
+	]);
 
 	const getExistingPullRequest = async () => {
 		const repositoryUrl = new URL(config("repository"));
