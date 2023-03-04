@@ -14,7 +14,7 @@
 	},
 	"scripts": {
 		"build": "shx rm -rf ./dist/* && tsc && shx cp ./package.json ./dist && shx cp ./README.md ./dist",
-		"auri.publish": "pnpm build && shx rm -rf ./package.json && cd dist && pnpm publish --no-git-checks --access public && cd ../ && shx cp ./dist/package.json ./ && shx rm -rf ./dist/*",
+		"auri.publish": "pnpm build && shx rm -rf ./package.json && cd dist && pnpm publish --no-git-checks --access public && cd ../ && shx cp ./dist/package.json ./ && shx rm -rf ./dist/package.json && rm -rf ./dist/README.md",
 		"auri": "node ./dist/index.js",
 		"format": "pnpm exec prettier -w ."
 	},
