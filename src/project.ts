@@ -45,29 +45,36 @@ export const getPackages = async (): Promise<Package[]> => {
 	});
 };
 
-const getGitignoreItemPaths = () => {
+const readdirRecursiveFileSync = (
+	workingAbsolutePath = process.cwd()
+): string[] => {
 	const ignoreItemRelativePaths = [".git"];
-	if (fs.existsSync(path.resolve(".gitignore"))) {
-		const file = fs.readFileSync(path.resolve(".gitignore"));
-		const fileText = file.toString();
-		ignoreItemRelativePaths.push(...fileText.split("\n"));
-	}
-	return ignoreItemRelativePaths.map((relativePath) =>
-		path.resolve(relativePath)
-	);
-};
+	const gitignoreFilePath = path.join(workingAbsolutePath, ".gitignore");
 
-const readdirRecursiveFileSync = (absolutePath = process.cwd()) => {
-	const ignoreItemAbsolutePaths = getGitignoreItemPaths();
-	const relativeFilePaths: string[] = [];
-	const dirItemNames = fs.readdirSync(absolutePath);
+	if (fs.existsSync(gitignoreFilePath)) {
+		const file = fs.readFileSync(gitignoreFilePath);
+		const fileText = file.toString();
+		ignoreItemRelativePaths.push(
+			...fileText.split("\n").filter((val) => !!val && !val.startsWith("#"))
+		);
+	}
+	const ignoreItemAbsolutePaths = ignoreItemRelativePaths
+		.map((relativePath) => path.join(workingAbsolutePath, relativePath))
+		.map((filePath) => {
+			if (!filePath.endsWith("/")) return filePath;
+			return filePath.slice(0, -1);
+		})
+		.filter((path) => path !== workingAbsolutePath);
+	const absoluteFilePaths = [];
+	const dirItemNames = fs.readdirSync(workingAbsolutePath);
 	for (const itemName of dirItemNames) {
-		const absoluteItemPath = path.resolve(absolutePath, itemName);
-		const relativeItemPath = path.relative(process.cwd(), absoluteItemPath);
-		const stat = fs.lstatSync(path.resolve(relativeItemPath));
-		if (stat.isFile()) {
-			relativeFilePaths.push(relativeItemPath);
+		const absoluteItemPath = path.join(workingAbsolutePath, itemName);
+		const stat = fs.lstatSync(absoluteItemPath);
+		if (stat.isFile() && !ignoreItemAbsolutePaths.includes(absoluteItemPath)) {
+			absoluteFilePaths.push(absoluteItemPath);
+			continue;
 		}
+		if (stat.isFile()) continue;
 		const isDir = stat.isDirectory();
 		const ignoreDir =
 			isDir &&
@@ -76,10 +83,10 @@ const readdirRecursiveFileSync = (absolutePath = process.cwd()) => {
 			);
 		if (isDir && !ignoreDir) {
 			const nestedItemPaths = readdirRecursiveFileSync(absoluteItemPath);
-			relativeFilePaths.push(...nestedItemPaths);
+			absoluteFilePaths.push(...nestedItemPaths);
 		}
 	}
-	return relativeFilePaths;
+	return absoluteFilePaths;
 };
 
 export const getPackage = async (packageName: string) => {
