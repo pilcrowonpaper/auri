@@ -11,7 +11,7 @@ const nodeArgs = process.execArgv;
 const args = process.argv.slice(nodeArgs.length + 2);
 
 if (isDebugEnabled) {
-	console.log("running auri")
+	console.log("running auri");
 	console.log(nodeArgs);
 	console.log(args);
 }

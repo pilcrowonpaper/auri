@@ -9,7 +9,7 @@ type Config = {
 		format?: string;
 		publish_setup?: string
 	};
-	debug?: boolean
+	debug?: boolean;
 };
 
 const configFilePath = path.resolve(path.join(AURI_DIR, "config.json"));
