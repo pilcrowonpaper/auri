@@ -51,9 +51,17 @@ export const prepare = async (): Promise<void> => {
 
 	const allPackages = await getPackages();
 
+	if (isDebugEnabled) {
+		console.log("packages");
+		console.log(allPackages.map((val) => val.name));
+	}
+
 	const changesetsMap: Record<string, PackageChangesets> = {};
 
 	for (const fileName of logFileNames) {
+		if (isDebugEnabled) {
+			console.log(`current file: ${fileName}`);
+		}
 		const file = fs.readFileSync(path.resolve(path.join(AURI_DIR, fileName)));
 		const fileText = file.toString();
 		const markdownContent = frontmatter<Record<string, unknown>>(fileText);
@@ -122,6 +130,11 @@ export const prepare = async (): Promise<void> => {
 		const commit = await getCommit();
 		const pullRequest = await getPullRequest(commit.sha);
 
+		if (isDebugEnabled) {
+			console.log(`commit author: ${commit.author}`);
+			console.log(`pr number: ${pullRequest?.number}`);
+		}
+
 		const metaData = {
 			author: commit.author.login,
 			prNumber: pullRequest?.number ?? null
@@ -167,6 +180,11 @@ export const prepare = async (): Promise<void> => {
 			changesets,
 			nextVersion
 		});
+	}
+
+	if (isDebugEnabled) {
+		console.log("packages to update");
+		console.log(packagesToUpdate.map((val) => val.package.name));
 	}
 
 	if (packagesToUpdate.length === 0) return;
