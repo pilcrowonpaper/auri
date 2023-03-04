@@ -1,5 +1,11 @@
 # auri
 
+## 0.2.6
+
+### Patch changes
+
+- By [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : Improve debug mode
+
 ## 0.2.5
 
 ### Patch changes
