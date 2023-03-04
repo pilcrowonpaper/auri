@@ -30,6 +30,7 @@ export const publish = async () => {
 			return latestVersion;
 		};
 		const publishedVersion = await getPublishedVersion();
+		if (publishedVersion === null) continue;
 		const workingVersion = pkg.version;
 		if (publishedVersion === workingVersion) continue;
 		const baseLocation = process.cwd();
