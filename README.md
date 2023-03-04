@@ -53,13 +53,13 @@ yarn auri
 
 `string`. Command for formatting code. Will run after Auri updates your changelogs and package.json.
 
-```json
+````json
 {
 	"scripts": {
 		"format": "pnpm format"
 	}
 }
-```
+```s
 
 #### `publish_setup`
 
@@ -71,7 +71,7 @@ yarn auri
 		"publish_setup": "pnpm build-dependency"
 	}
 }
-```
+````
 
 ## Commands
 
@@ -98,4 +98,8 @@ type: "" # "major", "minor", "patch" (semver)
 
 ### `auri publish`
 
-Compares version of package.json and one in the NPM registry, and runs `auri.publish` if it differs
+Compares version of package.json and one in the NPM registry, and runs `auri.publish` if it differs.
+
+### `auri list`
+
+Lists all packages handled by Auri.

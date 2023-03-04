@@ -63,7 +63,12 @@ const readdirRecursiveFileSync = (
 		...defaultIgnoreAbsolutePaths
 	];
 	// ignore only accepts relative paths :(
-	ig.add(ignoreItemAbsolutePaths.map((val) => `.${val.replace("/", "")}`));
+	ig.add(
+		ignoreItemAbsolutePaths.map((val) => {
+			if (val.includes("!")) return `!.${val.replace("/", "").replace("!", "")}`;
+			return `.${val.replace("/", "")}`;
+		})
+	);
 	const absoluteFilePaths: string[] = [];
 	const dirItemNames = fs.readdirSync(workingAbsolutePath);
 	for (const itemName of dirItemNames) {

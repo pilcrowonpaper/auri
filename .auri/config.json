@@ -4,5 +4,5 @@
 		"format": "pnpm format"
 	},
 	"debug": true,
-	"ignore": ["dist"]
+	"ignore": ["*", "!package.json"]
 }

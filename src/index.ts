@@ -2,6 +2,7 @@ import { addChangeset } from "./changeset.js";
 import { prepare } from "./prepare.js";
 import { config, validateConfig } from "./config.js";
 import { publish } from "./publish.js";
+import { listPackages } from "./list.js";
 
 validateConfig();
 
@@ -20,24 +21,33 @@ const kill = () => process.exit();
 
 if (!args[0]) kill();
 
-if (args[0] === "add") {
+const baseArg = args[0];
+
+if (baseArg === "add") {
 	if (isDebugEnabled) {
 		console.log("running add");
 	}
 	await addChangeset();
 }
-if (args[0] === "prepare") {
+if (baseArg === "prepare") {
 	if (isDebugEnabled) {
 		console.log("running prepare");
 	}
 	await prepare();
 }
 
-if (args[0] === "publish") {
+if (baseArg === "publish") {
 	if (isDebugEnabled) {
 		console.log("running publish");
 	}
 	await publish();
+}
+
+if (baseArg === "list") {
+	if (isDebugEnabled) {
+		console.log("running list");
+	}
+	await listPackages();
 }
 
 kill();
