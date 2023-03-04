@@ -6,17 +6,32 @@ import { getPackages } from "./project.js";
 import fs from "fs";
 import path from "path";
 
+const isDebugEnabled = config("debug") ?? false;
+
 export const publish = async () => {
 	const logFileNames = fs
 		.readdirSync(path.resolve(AURI_DIR))
 		.filter((contentName) => {
 			return contentName.startsWith("$") && contentName.endsWith(".md");
 		});
-	if (logFileNames.length > 0) return;
-	const beforePublishScript = config("scripts.publish_setup");
-	if (beforePublishScript) {
-		execute(beforePublishScript);
+
+	if (isDebugEnabled) {
+		console.log("log file names");
+		console.log(logFileNames);
 	}
+
+	if (logFileNames.length > 0) return;
+
+	const publishSetupScript = config("scripts.publish_setup");
+
+	if (isDebugEnabled) {
+		console.log(`before_publish: ${publishSetupScript}`);
+	}
+
+	if (publishSetupScript) {
+		execute(publishSetupScript);
+	}
+
 	const packages = await getPackages();
 	for (const pkg of packages) {
 		const getPublishedVersion = async () => {
@@ -50,8 +65,14 @@ export const publish = async () => {
 			return latestVersion;
 		};
 		const publishedVersion = await getPublishedVersion();
-		if (publishedVersion === null) continue;
 		const workingVersion = pkg.version;
+
+		if (isDebugEnabled) {
+			console.log(`working package: ${pkg.name}`);
+			console.log(`published version : ${publishedVersion}`);
+			console.log(`working version : ${workingVersion}`);
+		}
+		if (publishedVersion === null) continue;
 		if (publishedVersion === workingVersion) continue;
 		const baseLocation = process.cwd();
 		execute("pnpm auri.publish");
