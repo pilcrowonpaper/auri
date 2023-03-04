@@ -6,6 +6,7 @@ on:
 
 env:
   AURI_GITHUB_TOKEN: ${{secrets.AURI_GITHUB_TOKEN}}
+  NODE_AUTH_TOKEN: ${{NODE_AUTH_TOKEN}}
 
 jobs:
   prepare:
