@@ -10,7 +10,7 @@ type Config = {
 		publish_setup?: string;
 	};
 	debug?: boolean;
-	ignore?: string[]
+	ignore?: string[];
 };
 
 const configFilePath = path.resolve(path.join(AURI_DIR, "config.json"));
