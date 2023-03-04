@@ -1,11 +1,11 @@
-name: "Cela"
+name: "Auri"
 on:
   push:
     branches:
       - main
 
 env:
-  CELA_GITHUB_TOKEN: ${{secrets.CELA_GITHUB_TOKEN}}
+  AURI_GITHUB_TOKEN: ${{secrets.AURI_GITHUB_TOKEN}}
 
 jobs:
   prepare:
@@ -24,7 +24,7 @@ jobs:
           pnpm install --no-frozen-lockfile
           pnpm build
       - name: run script
-        run: pnpm cela prepare
+        run: pnpm auri prepare
   publish:
     runs-on: ubuntu-latest
     steps:
@@ -41,4 +41,4 @@ jobs:
           pnpm install --no-frozen-lockfile
           pnpm build
       - name: run script
-        run: pnpm cela publish
+        run: pnpm auri publish

@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { CELA_DIR } from "./constant.js";
+import { AURI_DIR } from "./constant.js";
 
 type Config = {
 	repository: string;
@@ -9,7 +9,7 @@ type Config = {
 	};
 };
 
-const configFilePath = path.resolve(path.join(CELA_DIR, "config.json"));
+const configFilePath = path.resolve(path.join(AURI_DIR, "config.json"));
 
 type FlatKey<T extends {}> = {
 	[K in keyof Required<T>]: K extends string
@@ -52,10 +52,10 @@ export const config = <K extends FlatKey<Config>>(key: K) => {
 
 export const validateConfig = () => {
 	if (!fs.existsSync(configFilePath))
-		throw new Error(".cela/config.json does not exist");
+		throw new Error(".auri/config.json does not exist");
 	const configJsonFile = fs.readFileSync(configFilePath);
 	const configJson = configJsonFile.toString();
 	const parsedConfig = JSON.parse(configJson) as Partial<Config>;
 	if (!("repository" in parsedConfig))
-		throw new Error(`"repository" is not defined in .cela/config.json`);
+		throw new Error(`"repository" is not defined in .auri/config.json`);
 };

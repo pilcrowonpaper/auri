@@ -1,6 +1,6 @@
 {
-	"name": "cela",
-	"version": "2.3.0",
+	"name": "auri",
+	"version": "0.1.0",
 	"description": "Organize package changes and releases",
 	"main": "index.js",
 	"types": "index.d.ts",
@@ -10,22 +10,21 @@
 		"**/*"
 	],
 	"bin": {
-		"cela": "./index.js"
+		"auri": "./index.js"
 	},
 	"scripts": {
 		"build": "shx rm -rf ./dist/* && tsc && shx cp ./package.json ./dist && shx cp ./README.md ./dist",
-		"release": "pnpm build && cd dist && pnpm install --no-frozen-lockfile && pnpm publish --no-git-checks --access public && cd ../",
-		"cela": "node ./dist/index.js",
-		"format": "pnpm exec prettier -w .",
-		"cela.publish": "node -e \"console.log('publish!!!!');\""
+		"auri.publish": "pnpm build && cd dist && pnpm install --no-frozen-lockfile && pnpm publish --no-git-checks --access public && cd ../",
+		"auri": "node ./dist/index.js",
+		"format": "pnpm exec prettier -w ."
 	},
 	"keywords": [],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/lucia-auth/cela",
+		"url": "https://github.com/pilcrowOnPaper/auri",
 		"directory": "/"
 	},
-	"author": "lucia",
+	"author": "pilcrowOnPaper",
 	"license": "MIT",
 	"exports": {
 		"./package.json": "./package.json",

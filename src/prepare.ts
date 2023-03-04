@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import frontmatter from "front-matter";
 
-import { CELA_DIR } from "./constant.js";
+import { AURI_DIR } from "./constant.js";
 import { Package, getPackage, getPackages } from "./project.js";
 import { getUser, githubApiRequest, githubRepositoryApi } from "./github.js";
 import { config } from "./config.js";
@@ -25,10 +25,10 @@ type PackageChangesets = {
 };
 
 export const prepare = async (): Promise<void> => {
-	if (!fs.existsSync(path.resolve(CELA_DIR))) throw new Error();
+	if (!fs.existsSync(path.resolve(AURI_DIR))) throw new Error();
 
 	const logFileNames = fs
-		.readdirSync(path.resolve(CELA_DIR))
+		.readdirSync(path.resolve(AURI_DIR))
 		.filter((contentName) => {
 			return contentName.startsWith("$") && contentName.endsWith(".md");
 		});
@@ -39,7 +39,7 @@ export const prepare = async (): Promise<void> => {
 	const changesetsMap: Record<string, PackageChangesets> = {};
 
 	for (const fileName of logFileNames) {
-		const file = fs.readFileSync(path.resolve(path.join(CELA_DIR, fileName)));
+		const file = fs.readFileSync(path.resolve(path.join(AURI_DIR, fileName)));
 		const fileText = file.toString();
 		const markdownContent = frontmatter<Record<string, unknown>>(fileText);
 		const changeType = markdownContent.attributes.type;
@@ -75,7 +75,7 @@ export const prepare = async (): Promise<void> => {
 					{
 						method: "GET",
 						queryParameters: {
-							path: `/.cela/${changesetId}.md`
+							path: `/.auri/${changesetId}.md`
 						}
 					}
 				);
@@ -209,12 +209,12 @@ export const prepare = async (): Promise<void> => {
 
 	formatRepository();
 
-	const fileNames = fs.readdirSync(path.join(process.cwd(), CELA_DIR));
+	const fileNames = fs.readdirSync(path.join(process.cwd(), AURI_DIR));
 	const changesetFileNames = fileNames.filter((fileName) =>
 		fileName.endsWith(".md")
 	);
 	for (const fileName of changesetFileNames) {
-		fs.rmSync(path.join(process.cwd(), CELA_DIR, fileName));
+		fs.rmSync(path.join(process.cwd(), AURI_DIR, fileName));
 	}
 
 	const user = await getUser();
@@ -222,7 +222,7 @@ export const prepare = async (): Promise<void> => {
 	execute(
 		`git config --global user.name "${user.username}"`,
 		`git config --global user.email "${user.email}"`,
-		`git checkout -b cela`,
+		`git checkout -b auri`,
 		`git add .`,
 		`git commit -m "update release"`,
 		`git push -f -u origin HEAD`
@@ -238,7 +238,7 @@ export const prepare = async (): Promise<void> => {
 				{
 					method: "GET",
 					queryParameters: {
-						head: `${repositoryOwner}:cela`,
+						head: `${repositoryOwner}:auri`,
 						base: "main",
 						state: "open"
 					}
@@ -261,7 +261,7 @@ export const prepare = async (): Promise<void> => {
 		])
 		.flat()
 		.join("\n");
-	const prBody = `This is a pull request automatically created by Cela. You can approve this pull request to update changelogs and publish packages.
+	const prBody = `This is a pull request automatically created by Auri. You can approve this pull request to update changelogs and publish packages.
 
 ## Releases
 
@@ -272,7 +272,7 @@ ${changesBody}`;
 			method: "POST",
 			body: {
 				title: "CI: Release",
-				head: "cela",
+				head: "auri",
 				base: "main",
 				body: prBody
 			}

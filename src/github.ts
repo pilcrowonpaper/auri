@@ -27,7 +27,7 @@ export const githubApiRequest = async <T extends any = void>(
 		"https://api.github.com"
 	);
 	const requestInit = {} as RequestInit;
-	const GITHUB_TOKEN = env("CELA_GITHUB_TOKEN");
+	const GITHUB_TOKEN = env("AURI_GITHUB_TOKEN");
 	requestInit.method = options.method;
 	requestInit.headers = {
 		Authorization: `Bearer ${GITHUB_TOKEN}`

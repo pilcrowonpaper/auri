@@ -1,1 +1,1 @@
-export const CELA_DIR = ".cela";
+export const AURI_DIR = ".auri";

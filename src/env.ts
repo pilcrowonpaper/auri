@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-type EnvVar = "CELA_GITHUB_TOKEN";
+type EnvVar = "AURI_GITHUB_TOKEN";
 
 export const env = (key: EnvVar) => {
 	const value = process.env[key];
