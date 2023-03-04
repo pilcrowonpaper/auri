@@ -3,5 +3,6 @@
 	"scripts": {
 		"format": "pnpm format"
 	},
-	"debug": true
+	"debug": true,
+	"ignore": ["dist"]
 }

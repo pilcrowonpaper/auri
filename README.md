@@ -27,9 +27,19 @@ yarn auri
 
 ## Config
 
+### `ignore`
+
+`string[]`. Paths to ignore when searching for packages. `node_modules` and `.git` already included.
+
+```json
+{
+	"repository": ["dist"]
+}
+```
+
 ### `repository`
 
-**Required** Full Github repository url.
+**Required** `string`. Full Github repository url.
 
 ```json
 {
@@ -41,7 +51,7 @@ yarn auri
 
 #### `format`
 
-Command for formatting code. Will run after Auri updates your changelogs and package.json.
+`string`. Command for formatting code. Will run after Auri updates your changelogs and package.json.
 
 ```json
 {
@@ -53,7 +63,7 @@ Command for formatting code. Will run after Auri updates your changelogs and pac
 
 #### `publish_setup`
 
-Command to run before any publish command runs.
+`string`. Command to run before any publish command runs.
 
 ```json
 {

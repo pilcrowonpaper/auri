@@ -10,13 +10,14 @@ type Config = {
 		publish_setup?: string;
 	};
 	debug?: boolean;
+	ignore?: string[]
 };
 
 const configFilePath = path.resolve(path.join(AURI_DIR, "config.json"));
 
 type FlatKey<T extends {}> = {
 	[K in keyof Required<T>]: K extends string
-		? T[K] extends string | boolean | undefined
+		? T[K] extends string | boolean | undefined | any[]
 			? K
 			: Required<T>[K] extends {}
 			? `${K}.${FlatKey<Required<Required<T>[K]>>}`

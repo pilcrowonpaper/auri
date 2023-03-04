@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { error } from "./error.js";
 import { config } from "./config.js";
+import ignore from "ignore";
 
 export type Package = {
 	name: string;
@@ -45,43 +46,36 @@ export const getPackages = async (): Promise<Package[]> => {
 	});
 };
 
+const ignoreConfig = config("ignore") ?? [];
+const ignoreConfigAbsolutePaths = ignoreConfig.map((configPath) =>
+	path.join(process.cwd(), configPath)
+);
+
 const readdirRecursiveFileSync = (
 	workingAbsolutePath = process.cwd()
 ): string[] => {
-	const ignoreItemRelativePaths = [".git"];
-	const gitignoreFilePath = path.join(workingAbsolutePath, ".gitignore");
-
-	if (fs.existsSync(gitignoreFilePath)) {
-		const file = fs.readFileSync(gitignoreFilePath);
-		const fileText = file.toString();
-		ignoreItemRelativePaths.push(
-			...fileText.split("\n").filter((val) => !!val && !val.startsWith("#"))
-		);
-	}
-	const ignoreItemAbsolutePaths = ignoreItemRelativePaths
-		.map((relativePath) => path.join(workingAbsolutePath, relativePath))
-		.map((filePath) => {
-			if (!filePath.endsWith("/")) return filePath;
-			return filePath.slice(0, -1);
-		})
-		.filter((path) => path !== workingAbsolutePath);
+	const ig = ignore();
+	const defaultIgnoreAbsolutePaths = ["node_modules", ".git"].map((item) =>
+		path.join(workingAbsolutePath, item)
+	);
+	const ignoreItemAbsolutePaths = [
+		...ignoreConfigAbsolutePaths,
+		...defaultIgnoreAbsolutePaths
+	];
+	// ignore only accepts relative paths :(
+	ig.add(ignoreItemAbsolutePaths.map((val) => `.${val.replace("/", "")}`));
 	const absoluteFilePaths: string[] = [];
 	const dirItemNames = fs.readdirSync(workingAbsolutePath);
 	for (const itemName of dirItemNames) {
 		const absoluteItemPath = path.join(workingAbsolutePath, itemName);
 		const stat = fs.lstatSync(absoluteItemPath);
-		if (stat.isFile() && !ignoreItemAbsolutePaths.includes(absoluteItemPath)) {
+		const ignoreItem = ig.ignores(`.${absoluteItemPath.replace("/", "")}`);
+		if (ignoreItem) continue;
+		if (stat.isFile()) {
 			absoluteFilePaths.push(absoluteItemPath);
 			continue;
 		}
-		if (stat.isFile()) continue;
-		const isDir = stat.isDirectory();
-		const ignoreDir =
-			isDir &&
-			ignoreItemAbsolutePaths.some((itemPath) =>
-				absoluteItemPath.startsWith(itemPath)
-			);
-		if (isDir && !ignoreDir) {
+		if (stat.isDirectory()) {
 			const nestedItemPaths = readdirRecursiveFileSync(absoluteItemPath);
 			absoluteFilePaths.push(...nestedItemPaths);
 		}
