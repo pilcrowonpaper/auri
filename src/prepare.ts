@@ -300,8 +300,12 @@ const generatePackageChangelog = (
 	headingLevel: number
 ) => {
 	const getChangesetMdItem = (changeset: Changeset) => {
+		const authorLink = `[@${changeset.author}](${new URL(
+			changeset.author,
+			"https://github.com"
+		)})`
 		if (changeset.prNumber === null) {
-			return `- By @${changeset.author} : ${changeset.content}`;
+			return `- By ${authorLink} : ${changeset.content}`;
 		}
 		const repositoryUrl = new URL(config("repository"));
 		const prPathname = path.join(
@@ -310,7 +314,7 @@ const generatePackageChangelog = (
 			changeset.prNumber.toString()
 		);
 		const prUrl = new URL(prPathname, "https://github.com");
-		return `- [#${changeset.prNumber}](${prUrl}) by @${changeset.author} : ${changeset.content}`;
+		return `- [#${changeset.prNumber}](${prUrl}) by ${authorLink} : ${changeset.content}`;
 	};
 
 	const newLogItems = [];
