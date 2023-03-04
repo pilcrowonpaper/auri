@@ -57,10 +57,11 @@ export const publish = async () => {
 				}
 			}
 			const npmRegistry = (await npmRegistryResponse.json()) as {
-				versions: Record<string, any>;
+				"dist-tags": {
+					latest: string;
+				};
 			};
-			const versionHistory = Object.keys(npmRegistry.versions);
-			const latestVersion = versionHistory.at(0);
+			const latestVersion = npmRegistry["dist-tags"].latest;
 			if (!latestVersion) return null;
 			return latestVersion;
 		};
