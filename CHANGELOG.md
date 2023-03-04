@@ -1,5 +1,11 @@
 # auri
 
+## 0.4.0
+
+### Minor changes
+
+- By [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : Add `list` command and properly handle `!` ignore items
+
 ## 0.3.3
 
 ### Patch changes
