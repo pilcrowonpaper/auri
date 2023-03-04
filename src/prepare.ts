@@ -74,7 +74,15 @@ export const prepare = async (): Promise<void> => {
 		const isValidPackageName =
 			typeof packageName === "string" &&
 			allPackages.some((p) => p.name === packageName);
+		if (isDebugEnabled) {
+			console.log(`file text: ${fileText}`);
+			console.log(`change type: ${changeType}`);
+			console.log(`package name: ${packageName}`);
+			console.log(`is valid change type: ${isValidChangeType}`);
+			console.log(`is valid package name: ${isValidPackageName}`);
+		}
 		if (!isValidPackageName || !isValidChangeType) continue;
+
 		if (!(packageName in changesetsMap)) {
 			changesetsMap[packageName] = {
 				patch: [],
@@ -83,6 +91,10 @@ export const prepare = async (): Promise<void> => {
 			};
 		}
 		const changesetId = fileName.split(".").slice(0, -1).join(".");
+
+		if (isDebugEnabled) {
+			console.log(`changeset id: ${changesetId}`);
+		}
 
 		type GithubCommit = {
 			sha: string;
@@ -143,6 +155,11 @@ export const prepare = async (): Promise<void> => {
 			content: markdownContent.body.trim(),
 			...metaData
 		});
+	}
+
+	if (isDebugEnabled) {
+		console.log("changesets:");
+		console.log(Object.entries(changesetsMap));
 	}
 
 	const packagesToUpdate: {
