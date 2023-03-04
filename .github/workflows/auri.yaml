@@ -9,7 +9,7 @@ env:
   NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
 
 jobs:
-  prepare:
+  auri:
     runs-on: ubuntu-latest
     steps:
       - name: setup actions
@@ -24,22 +24,7 @@ jobs:
           npm i -g pnpm
           pnpm install --no-frozen-lockfile
           pnpm build
-      - name: run script
-        run: pnpm auri prepare
-  publish:
-    runs-on: ubuntu-latest
-    steps:
-      - name: setup actions
-        uses: actions/checkout@v3
-      - name: node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          registry-url: https://registry.npmjs.org
-      - name: install dependencies
-        run: |
-          npm i -g pnpm
-          pnpm install --no-frozen-lockfile
-          pnpm build
-      - name: run script
+      - name: auri publish
         run: pnpm auri publish
+      - name: auri prepare
+        run: pnpm auri prepare

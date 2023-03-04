@@ -7,6 +7,7 @@ type Config = {
 	repository: string;
 	scripts?: {
 		format?: string;
+		publish_setup?: string
 	};
 	debug?: boolean
 };

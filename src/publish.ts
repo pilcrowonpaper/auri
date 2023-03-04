@@ -1,3 +1,4 @@
+import { config } from "./config.js";
 import { AURI_DIR } from "./constant.js";
 import { error } from "./error.js";
 import { execute } from "./execute.js";
@@ -12,7 +13,10 @@ export const publish = async () => {
 			return contentName.startsWith("$") && contentName.endsWith(".md");
 		});
 	if (logFileNames.length > 0) return;
-
+	const beforePublishScript = config("scripts.publish_setup");
+	if (beforePublishScript) {
+		execute(beforePublishScript);
+	}
 	const packages = await getPackages();
 	for (const pkg of packages) {
 		const getPublishedVersion = async () => {
