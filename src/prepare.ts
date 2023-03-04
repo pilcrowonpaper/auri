@@ -238,7 +238,7 @@ export const prepare = async (): Promise<void> => {
 	const getExistingPullRequest = async () => {
 		const repositoryUrl = new URL(config("repository"));
 		const repositoryOwner = repositoryUrl.pathname.split("/").at(1) ?? null;
-		if (repositoryOwner === null) return error("Invalid config.repository url")
+		if (repositoryOwner === null) return error("Invalid config.repository url");
 		try {
 			const pullRequests = await githubApiRequest<GithubPullRequest[]>(
 				githubRepositoryApi("pulls"),

@@ -1,5 +1,11 @@
 # auri
 
+## 0.2.1
+
+### Patch changes
+
+- [#14](https://github.com/pilcrowOnPaper/auri/pull/14) by [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : Better error messages
+
 ## 0.2.0
 
 ### Minor changes
