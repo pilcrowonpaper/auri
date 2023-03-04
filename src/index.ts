@@ -1,12 +1,20 @@
 import { addChangeset } from "./changeset.js";
 import { prepare } from "./prepare.js";
-import { validateConfig } from "./config.js";
+import { config, validateConfig } from "./config.js";
 import { publish } from "./publish.js";
 
 validateConfig();
 
+const isDebugEnabled = config("debug") ?? false;
+
 const nodeArgs = process.execArgv;
 const args = process.argv.slice(nodeArgs.length + 2);
+
+if (isDebugEnabled) {
+	console.log("running auri")
+	console.log(nodeArgs);
+	console.log(args);
+}
 
 const kill = () => process.exit();
 
