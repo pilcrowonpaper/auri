@@ -80,8 +80,8 @@ export const getUser = async () => {
 			});
 			return user.login;
 		} catch (e) {
-			if (e instanceof GithubApiError) githubApiError(e)
-			return error("Unknown error occurred")
+			if (e instanceof GithubApiError) githubApiError(e);
+			return error("Unknown error occurred");
 		}
 	};
 	const getUserEmails = async () => {
@@ -93,15 +93,15 @@ export const getUser = async () => {
 				}
 			);
 		} catch (e) {
-			if (e instanceof GithubApiError) githubApiError(e)
-			return error("Unknown error occurred")
+			if (e instanceof GithubApiError) githubApiError(e);
+			return error("Unknown error occurred");
 		}
 	};
 
 	const username = await getUsername();
 	const emails = await getUserEmails();
 	const primaryEmail = emails.find((email) => email.primary);
-	if (!primaryEmail) return error("Primary email not defined")
+	if (!primaryEmail) return error("Primary email not defined");
 	return {
 		username,
 		email: primaryEmail.email
