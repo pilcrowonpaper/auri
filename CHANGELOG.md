@@ -1,5 +1,11 @@
 # auri
 
+## 0.4.1
+
+### Patch changes
+
+- By [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : Fix publish script not working for nested packages
+
 ## 0.4.0
 
 ### Minor changes
