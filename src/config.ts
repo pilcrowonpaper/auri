@@ -7,7 +7,7 @@ type Config = {
 	repository: string;
 	scripts?: {
 		format?: string;
-		publish_setup?: string
+		publish_setup?: string;
 	};
 	debug?: boolean;
 };
@@ -16,7 +16,7 @@ const configFilePath = path.resolve(path.join(AURI_DIR, "config.json"));
 
 type FlatKey<T extends {}> = {
 	[K in keyof Required<T>]: K extends string
-		? T[K] extends string
+		? T[K] extends string | boolean | undefined
 			? K
 			: Required<T>[K] extends {}
 			? `${K}.${FlatKey<Required<Required<T>[K]>>}`
@@ -36,8 +36,6 @@ type ExtractValueFromFlatKey<
 	: FK extends keyof Obj
 	? Obj[FK]
 	: never;
-
-type N = ExtractValueFromFlatKey<Config, "scripts.format">;
 
 export const config = <K extends FlatKey<Config>>(key: K) => {
 	const configJsonFile = fs.readFileSync(configFilePath);

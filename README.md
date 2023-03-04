@@ -41,12 +41,24 @@ yarn auri
 
 #### `format`
 
-Command for formatting code. Will run after Auri updates your changelogs and package.json
+Command for formatting code. Will run after Auri updates your changelogs and package.json.
 
 ```json
 {
 	"scripts": {
 		"format": "pnpm format"
+	}
+}
+```
+
+#### `publish_setup`
+
+Command to run before any publish command runs.
+
+```json
+{
+	"scripts": {
+		"publish_setup": "pnpm build-dependency"
 	}
 }
 ```
