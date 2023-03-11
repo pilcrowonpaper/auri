@@ -27,6 +27,16 @@ yarn auri
 
 ## Config
 
+### `documentation`
+
+`string[]`. A list of paths (relative to the root) to the documentation dir. Runs `auri.deploy` on push to main if no release PR exists or on release PR merge.
+
+```json
+{
+	"documentation": ["sites/documentation"]
+}
+```
+
 ### `ignore`
 
 `string[]`. Paths to ignore when searching for packages. `node_modules` and `.git` already included.

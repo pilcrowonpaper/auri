@@ -1,5 +1,6 @@
 import { config } from "./config.js";
 import { AURI_DIR } from "./constant.js";
+import { deploy } from "./deploy.js";
 import { error } from "./error.js";
 import { execute } from "./execute.js";
 import { getPackages } from "./project.js";
@@ -80,4 +81,5 @@ export const publish = async () => {
 			cwd: pkg.directoryPath
 		});
 	}
+	deploy();
 };

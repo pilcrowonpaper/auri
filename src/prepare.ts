@@ -14,6 +14,7 @@ import { config } from "./config.js";
 import { execute } from "./execute.js";
 import { formatRepository } from "./format.js";
 import { error, githubApiError } from "./error.js";
+import { deploy } from "./deploy.js";
 
 type GithubPullRequest = {
 	number: number;
@@ -204,7 +205,9 @@ export const prepare = async (): Promise<void> => {
 		console.log(packagesToUpdate.map((val) => val.package.name));
 	}
 
-	if (packagesToUpdate.length === 0) return;
+	if (packagesToUpdate.length === 0) {
+		return deploy();
+	}
 
 	for (const update of packagesToUpdate) {
 		const getPreviousChangelogItems = () => {

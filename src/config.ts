@@ -11,6 +11,7 @@ type Config = {
 	};
 	debug?: boolean;
 	ignore?: string[];
+	documentation?: string[];
 };
 
 const configFilePath = path.resolve(path.join(AURI_DIR, "config.json"));
