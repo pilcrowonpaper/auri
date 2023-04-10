@@ -1,5 +1,11 @@
 # auri
 
+## 0.5.2
+
+### Patch changes
+
+- [#31](https://github.com/pilcrowOnPaper/auri/pull/31) by [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : Fix `list` command
+
 ## 0.5.1
 
 ### Patch changes
