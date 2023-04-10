@@ -1,6 +1,6 @@
 import { addChangeset } from "./scripts/changeset.js";
 import { prepare } from "./scripts/prepare.js";
-import { config, validateConfig } from "./utils/config.js";
+import { config, validateConfig } from "./shared/config.js";
 import { publish } from "./scripts/publish.js";
 import { listPackages } from "./scripts/list.js";
 

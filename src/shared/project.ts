@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { error } from "./error.js";
-import { config } from "../utils/config.js";
+import { config } from "./config.js";
 import ignore from "ignore";
 import { AURI_DEPLOY_COMMAND, AURI_PUBLISH_COMMAND } from "./constant.js";
 

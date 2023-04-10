@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
-import { AURI_DIR } from "../shared/constant.js";
-import { error } from "../shared/error.js";
+import { AURI_DIR } from "./constant.js";
+import { error } from "./error.js";
 
 type Config = {
 	repository: string;

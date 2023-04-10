@@ -1,4 +1,4 @@
-import { config } from "../utils/config.js";
+import { config } from "../shared/config.js";
 import {
 	AURI_DIR,
 	AURI_PUBLISH_COMMAND,

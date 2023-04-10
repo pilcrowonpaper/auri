@@ -16,7 +16,7 @@ import {
 	githubApiRequest,
 	githubRepositoryApi
 } from "../utils/github.js";
-import { config } from "../utils/config.js";
+import { config } from "../shared/config.js";
 import { execute } from "../utils/execute.js";
 import { formatRepository } from "../shared/format.js";
 import { error } from "../shared/error.js";

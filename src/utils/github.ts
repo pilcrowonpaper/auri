@@ -1,4 +1,4 @@
-import { config } from "./config.js";
+import { config } from "../shared/config.js";
 import path from "path";
 import { env } from "./env.js";
 import { error } from "../shared/error.js";

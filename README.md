@@ -107,8 +107,6 @@ Creates a new changeset in `.auri` directory. A changeset is a markdown file:
 package: "" # package name (package.json)
 type: "" # "major", "minor", "patch" (semver)
 ---
-
-<!-- changeset content -->
 ```
 
 ### `auri prepare`
