@@ -1,5 +1,13 @@
 # auri
 
+## 0.5.0
+
+### Minor changes
+
+- [#27](https://github.com/pilcrowOnPaper/auri/pull/27) by [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : [Breaking] Replace `scripts.format` and `scripts.publish_setup` with `scripts["auri.format"]` and `scripts["auri.publish_setup"]` inside package.json
+
+- [#27](https://github.com/pilcrowOnPaper/auri/pull/27) by [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : Add `auri.deploy`
+
 ## 0.4.1
 
 ### Patch changes
