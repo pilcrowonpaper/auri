@@ -3,6 +3,5 @@
 	"scripts": {
 		"format": "pnpm format"
 	},
-	"debug": true,
 	"ignore": ["*", "!package.json"]
 }
