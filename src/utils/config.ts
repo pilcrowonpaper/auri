@@ -1,17 +1,12 @@
 import fs from "fs";
 import path from "path";
-import { AURI_DIR } from "./constant.js";
-import { error } from "./error.js";
+import { AURI_DIR } from "../shared/constant.js";
+import { error } from "../shared/error.js";
 
 type Config = {
 	repository: string;
-	scripts?: {
-		format?: string;
-		publish_setup?: string;
-	};
 	debug?: boolean;
 	ignore?: string[];
-	documentation?: string[];
 };
 
 const configFilePath = path.resolve(path.join(AURI_DIR, "config.json"));

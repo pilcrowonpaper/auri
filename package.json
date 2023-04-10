@@ -14,9 +14,11 @@
 	},
 	"scripts": {
 		"build": "shx rm -rf ./dist/* && tsc && shx cp ./package.json ./dist && shx cp ./README.md ./dist",
-		"auri.publish": "pnpm build && cd dist && pnpm publish --no-git-checks --access public && cd ../",
 		"auri": "node ./dist/index.js",
-		"format": "pnpm exec prettier -w ."
+		"format": "pnpm exec prettier -w .",
+		"auri.publish": "pnpm build && cd dist && pnpm publish --no-git-checks --access public && cd ../",
+		"auri.format": "pnpm format",
+		"auri.deploy": "echo deploy"
 	},
 	"keywords": [
 		"auri",

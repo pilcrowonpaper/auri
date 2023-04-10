@@ -24,18 +24,9 @@ yarn auri
 4. Store the token as `AURI_GITHUB_TOKEN` in Github actions secrets
 5. Add `auri.publish` script to each package's package.json - this will be the command Auri will use to publish
 6. Make sure "Read and write permission" is enabled in repository settings > Actions > General > Workflow permissions
+7. Add `auri.deploy` script to your documentation sites
 
 ## Config
-
-### `documentation`
-
-`string[]`. A list of paths (relative to the root) to the documentation dir. Runs `auri.deploy` on push to main if no release PR exists or on release PR merge.
-
-```json
-{
-	"documentation": ["sites/documentation"]
-}
-```
 
 ### `ignore`
 
@@ -43,7 +34,7 @@ yarn auri
 
 ```json
 {
-	"repository": ["dist"]
+	"ignore": ["node_modules"]
 }
 ```
 
@@ -57,31 +48,53 @@ yarn auri
 }
 ```
 
-### `scripts`
+## Project `package.json`
 
-#### `format`
-
-`string`. Command for formatting code. Will run after Auri updates your changelogs and package.json.
-
-````json
-{
-	"scripts": {
-		"format": "pnpm format"
-	}
-}
-```s
-
-#### `publish_setup`
-
-`string`. Command to run before any publish command runs.
+### `auri.format`
 
 ```json
 {
 	"scripts": {
-		"publish_setup": "pnpm build-dependency"
+		"auri.format": "pnpm prettier -w ."
 	}
 }
-````
+```
+
+### `auri.publish_setup`
+
+This will be called before publishing packages.
+
+```json
+{
+	"scripts": {
+		"auri.publish_setup": "pnpm install-some-dependencies"
+	}
+}
+```
+
+## Package `package.json`
+
+### `auri.publish`
+
+```json
+{
+	"scripts": {
+		"auri.publish": "pnpm i && pnpm build && pnpm publish"
+	}
+}
+```
+
+## Documentation `package.json`
+
+### `auri.deploy`
+
+```json
+{
+	"scripts": {
+		"auri.deploy": "pnpm deploy"
+	}
+}
+```
 
 ## Commands
 
