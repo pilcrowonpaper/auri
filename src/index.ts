@@ -1,8 +1,8 @@
-import { addChangeset } from "./changeset.js";
-import { prepare } from "./prepare.js";
-import { config, validateConfig } from "./config.js";
-import { publish } from "./publish.js";
-import { listPackages } from "./list.js";
+import { addChangeset } from "./scripts/changeset.js";
+import { prepare } from "./scripts/prepare.js";
+import { config, validateConfig } from "./shared/config.js";
+import { publish } from "./scripts/publish.js";
+import { listPackages } from "./scripts/list.js";
 
 validateConfig();
 

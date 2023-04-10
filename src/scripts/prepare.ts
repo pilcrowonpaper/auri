@@ -2,18 +2,25 @@ import fs from "fs";
 import path from "path";
 import frontmatter from "front-matter";
 
-import { AURI_DIR } from "./constant.js";
-import { Package, getPackage, getPackages } from "./project.js";
+import { AURI_DIR, AURI_PUBLISH_COMMAND } from "../shared/constant.js";
+import {
+	Package,
+	getPackage,
+	getPackages,
+	getPublicPackages
+} from "../shared/project.js";
 import {
 	GithubApiError,
 	getUser,
+	githubApiError,
 	githubApiRequest,
 	githubRepositoryApi
-} from "./github.js";
-import { config } from "./config.js";
-import { execute } from "./execute.js";
-import { formatRepository } from "./format.js";
-import { error, githubApiError } from "./error.js";
+} from "../utils/github.js";
+import { config } from "../shared/config.js";
+import { execute } from "../utils/execute.js";
+import { formatRepository } from "../shared/format.js";
+import { error } from "../shared/error.js";
+import { deploy } from "../shared/deploy.js";
 
 type GithubPullRequest = {
 	number: number;
@@ -47,13 +54,16 @@ export const prepare = async (): Promise<void> => {
 		console.log(logFileNames);
 	}
 
-	if (logFileNames.length === 0) return;
+	if (logFileNames.length === 0) {
+		return deploy();
+	}
 
-	const allPackages = await getPackages();
+	const packages = getPackages();
+	const publicPackages = getPublicPackages(packages);
 
 	if (isDebugEnabled) {
 		console.log("all packages");
-		console.log(allPackages.map((val) => val.name));
+		console.log(packages.map((val) => val.name));
 	}
 
 	const changesetsMap: Record<string, PackageChangesets> = {};
@@ -73,7 +83,7 @@ export const prepare = async (): Promise<void> => {
 			changeType === "major";
 		const isValidPackageName =
 			typeof packageName === "string" &&
-			allPackages.some((p) => p.name === packageName);
+			publicPackages.some((pkg) => pkg.name === packageName);
 		if (isDebugEnabled) {
 			console.log(`file text: ${fileText}`);
 			console.log(`change type: ${changeType}`);
@@ -204,7 +214,9 @@ export const prepare = async (): Promise<void> => {
 		console.log(packagesToUpdate.map((val) => val.package.name));
 	}
 
-	if (packagesToUpdate.length === 0) return;
+	if (packagesToUpdate.length === 0) {
+		return deploy();
+	}
 
 	for (const update of packagesToUpdate) {
 		const getPreviousChangelogItems = () => {
@@ -269,14 +281,12 @@ export const prepare = async (): Promise<void> => {
 
 	const user = await getUser();
 
-	execute([
-		`git config --global user.name "${user.username}"`,
-		`git config --global user.email "${user.email}"`,
-		`git checkout -b auri`,
-		`git add .`,
-		`git commit -m "update release"`,
-		`git push -f -u origin HEAD`
-	]);
+	execute(`git config --global user.name "${user.username}"`);
+	execute(`git config --global user.email "${user.email}"`);
+	execute("git checkout -b auri");
+	execute("git add .");
+	execute('git commit -m "update release"');
+	execute("git push -f -u origin HEAD");
 
 	const getExistingPullRequest = async () => {
 		const repositoryUrl = new URL(config("repository"));

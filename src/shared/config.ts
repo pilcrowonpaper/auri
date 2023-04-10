@@ -5,10 +5,6 @@ import { error } from "./error.js";
 
 type Config = {
 	repository: string;
-	scripts?: {
-		format?: string;
-		publish_setup?: string;
-	};
 	debug?: boolean;
 	ignore?: string[];
 };

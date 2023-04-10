@@ -1,8 +1,8 @@
 import fs from "fs";
 import { customAlphabet } from "nanoid";
-import { AURI_DIR } from "./constant.js";
+import { AURI_DIR } from "../shared/constant.js";
 import path from "path";
-import { error } from "./error.js";
+import { error } from "../shared/error.js";
 
 export const addChangeset = async () => {
 	const ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz";

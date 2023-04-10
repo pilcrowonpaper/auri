@@ -3,21 +3,25 @@ import path from "path";
 import { error } from "./error.js";
 import { config } from "./config.js";
 import ignore from "ignore";
+import { AURI_DEPLOY_COMMAND, AURI_PUBLISH_COMMAND } from "./constant.js";
 
 export type Package = {
 	name: string;
 	packageJsonPath: string;
 	version: string;
 	directoryPath: string;
-	config: {
-		name?: string;
-		version?: string;
-	};
+	config: PackageConfig;
+};
+
+type PackageConfig = {
+	name?: string;
+	version?: string;
+	scripts?: Record<string, string>;
 };
 
 const isDebugEnabled = config("debug") ?? false;
 
-export const getPackages = async (): Promise<Package[]> => {
+export const getPackages = (): Package[] => {
 	const workspaceFileRelativePaths = readdirRecursiveFileSync();
 	const packageJsonRelativePaths = workspaceFileRelativePaths.filter(
 		(relativePath) => {
@@ -32,10 +36,7 @@ export const getPackages = async (): Promise<Package[]> => {
 	return packageJsonRelativePaths.map((relativePath) => {
 		const absolutePath = path.resolve(process.cwd(), relativePath);
 		const file = fs.readFileSync(absolutePath);
-		const parsedConfig = JSON.parse(file.toString()) as {
-			name: string;
-			version?: string;
-		};
+		const parsedConfig = JSON.parse(file.toString()) as PackageConfig;
 		return {
 			packageJsonPath: absolutePath,
 			directoryPath: absolutePath.split("/").slice(0, -1).join("/"),
@@ -89,9 +90,32 @@ const readdirRecursiveFileSync = (
 	return absoluteFilePaths;
 };
 
-export const getPackage = async (packageName: string) => {
-	const packages = await getPackages();
+export const getPackage = (packageName: string) => {
+	const packages = getPackages();
 	const searchResult = packages.find((pkg) => pkg.name === packageName) ?? null;
 	if (!searchResult) return error(`Package ${packageName} does not exist`);
 	return searchResult;
+};
+
+export const getProjectPackageConfig = () => {
+	const packageJsonPath = path.join(process.cwd(), "package.json");
+	try {
+		const file = fs.readFileSync(packageJsonPath);
+		const parsedConfig = JSON.parse(file.toString()) as PackageConfig;
+		return parsedConfig;
+	} catch {
+		return error(`package.json does not exist`);
+	}
+};
+
+export const getPublicPackages = (packages: Package[]) => {
+	return packages.filter((pkg) => {
+		return AURI_PUBLISH_COMMAND in (pkg.config.scripts ?? {});
+	});
+};
+
+export const getDocumentationPackages = (packages: Package[]) => {
+	return packages.filter((pkg) => {
+		return AURI_DEPLOY_COMMAND in (pkg.config.scripts ?? {});
+	});
 };

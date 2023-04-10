@@ -1,12 +1,29 @@
-import { config } from "./config.js";
-import { AURI_DIR } from "./constant.js";
-import { error } from "./error.js";
-import { execute } from "./execute.js";
-import { getPackages } from "./project.js";
+import { config } from "../shared/config.js";
+import {
+	AURI_DIR,
+	AURI_PUBLISH_COMMAND,
+	AURI_PUBLISH_SETUP_COMMAND
+} from "../shared/constant.js";
+import { deploy } from "../shared/deploy.js";
+import { error } from "../shared/error.js";
+import { pnpm } from "../utils/execute.js";
+import {
+	getPackages,
+	getProjectPackageConfig,
+	getPublicPackages
+} from "../shared/project.js";
 import fs from "fs";
 import path from "path";
 
 const isDebugEnabled = config("debug") ?? false;
+
+const publishSetup = () => {
+	const projectPackageConfig = getProjectPackageConfig();
+	const projectScripts = projectPackageConfig.scripts ?? {};
+	const commandDefined = AURI_PUBLISH_SETUP_COMMAND in projectScripts;
+	if (!commandDefined) return;
+	pnpm(AURI_PUBLISH_SETUP_COMMAND);
+};
 
 export const publish = async () => {
 	const logFileNames = fs
@@ -22,18 +39,12 @@ export const publish = async () => {
 
 	if (logFileNames.length > 0) return;
 
-	const publishSetupScript = config("scripts.publish_setup");
+	publishSetup();
 
-	if (isDebugEnabled) {
-		console.log(`before_publish: ${publishSetupScript}`);
-	}
+	const packages = getPackages();
+	const publicPackages = getPublicPackages(packages);
 
-	if (publishSetupScript) {
-		execute([publishSetupScript]);
-	}
-
-	const packages = await getPackages();
-	for (const pkg of packages) {
+	for (const pkg of publicPackages) {
 		const getPublishedVersion = async () => {
 			const npmRegistryUrl = new URL(pkg.name, "https://registry.npmjs.org");
 			const npmRegistryResponse = await fetch(npmRegistryUrl);
@@ -76,8 +87,9 @@ export const publish = async () => {
 		if (publishedVersion === null) continue;
 		if (publishedVersion === workingVersion) continue;
 
-		execute(["pnpm auri.publish"], {
+		pnpm("AURI_PUBLISH_SCRIPT", {
 			cwd: pkg.directoryPath
 		});
 	}
+	deploy();
 };

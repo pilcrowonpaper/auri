@@ -1,7 +1,14 @@
-import { config } from "./config.js";
+import { config } from "../shared/config.js";
 import path from "path";
 import { env } from "./env.js";
-import { error, githubApiError } from "./error.js";
+import { error } from "../shared/error.js";
+
+export const githubApiError = (errorInstance: GithubApiError): never => {
+	return error(
+		`Github API error: ${errorInstance.status} - ${errorInstance.message}`,
+		`Unsuccessful response from ${errorInstance.url}`
+	);
+};
 
 export const githubRepositoryApi = (
 	...localPathSegments: (string | number)[]

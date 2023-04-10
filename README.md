@@ -24,6 +24,7 @@ yarn auri
 4. Store the token as `AURI_GITHUB_TOKEN` in Github actions secrets
 5. Add `auri.publish` script to each package's package.json - this will be the command Auri will use to publish
 6. Make sure "Read and write permission" is enabled in repository settings > Actions > General > Workflow permissions
+7. Add `auri.deploy` script to your documentation sites
 
 ## Config
 
@@ -33,7 +34,7 @@ yarn auri
 
 ```json
 {
-	"repository": ["dist"]
+	"ignore": ["node_modules"]
 }
 ```
 
@@ -47,28 +48,50 @@ yarn auri
 }
 ```
 
-### `scripts`
+## Project `package.json`
 
-#### `format`
-
-`string`. Command for formatting code. Will run after Auri updates your changelogs and package.json.
+### `auri.format`
 
 ```json
 {
 	"scripts": {
-		"format": "pnpm format"
+		"auri.format": "pnpm prettier -w ."
 	}
 }
 ```
 
-#### `publish_setup`
+### `auri.publish_setup`
 
-`string`. Command to run before any publish command runs.
+This will be called before publishing packages.
 
 ```json
 {
 	"scripts": {
-		"publish_setup": "pnpm build-dependency"
+		"auri.publish_setup": "pnpm install-some-dependencies"
+	}
+}
+```
+
+## Package `package.json`
+
+### `auri.publish`
+
+```json
+{
+	"scripts": {
+		"auri.publish": "pnpm i && pnpm build && pnpm publish"
+	}
+}
+```
+
+## Documentation `package.json`
+
+### `auri.deploy`
+
+```json
+{
+	"scripts": {
+		"auri.deploy": "pnpm deploy"
 	}
 }
 ```
@@ -84,8 +107,6 @@ Creates a new changeset in `.auri` directory. A changeset is a markdown file:
 package: "" # package name (package.json)
 type: "" # "major", "minor", "patch" (semver)
 ---
-
-<!-- changeset content -->
 ```
 
 ### `auri prepare`
