@@ -1,5 +1,11 @@
 # auri
 
+## 0.5.1
+
+### Patch changes
+
+- [#29](https://github.com/pilcrowOnPaper/auri/pull/29) by [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : Fix deploy command
+
 ## 0.5.0
 
 ### Minor changes
