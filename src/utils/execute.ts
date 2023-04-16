@@ -6,7 +6,8 @@ export const execute = (
 		cwd?: string;
 	}
 ) => {
-	childProcess.execSync(command, options);
+	const stdout = childProcess.execSync(command, options);
+	process.stdout.write(stdout);
 };
 
 export const pnpm = (
