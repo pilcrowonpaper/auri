@@ -1,5 +1,11 @@
 # auri
 
+## 0.5.3
+
+### Patch changes
+
+- [#33](https://github.com/pilcrowOnPaper/auri/pull/33) by [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : Write stdout to console after running command
+
 ## 0.5.2
 
 ### Patch changes
