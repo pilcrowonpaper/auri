@@ -1,5 +1,11 @@
 # auri
 
+## 0.5.4
+
+### Patch changes
+
+- [#35](https://github.com/pilcrowOnPaper/auri/pull/35) by [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : Properly format error message and exit
+
 ## 0.5.3
 
 ### Patch changes
