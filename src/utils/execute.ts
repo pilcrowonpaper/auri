@@ -6,8 +6,17 @@ export const execute = (
 		cwd?: string;
 	}
 ) => {
-	const stdout = childProcess.execSync(command, options);
-	process.stdout.write(stdout);
+	try {
+		childProcess.execSync(command, options);
+	} catch (e) {
+		const error = e as {
+			stderr: null | Buffer;
+		};
+		if (error.stderr) {
+			console.log(error.stderr.toString());
+		}
+		exit();
+	}
 };
 
 export const pnpm = (
@@ -17,4 +26,8 @@ export const pnpm = (
 	}
 ) => {
 	execute(["pnpm", command].join(" "), options);
+};
+
+export const exit = () => {
+	process.exitCode = 0;
 };
