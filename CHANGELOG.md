@@ -1,10 +1,21 @@
 # auri
 
+## 0.6.0-beta.1
+
+### Patch changes
+
+- [#41](https://github.com/pilcrowOnPaper/auri/pull/41) by [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : Fix `prepare` command erroring if release config was missing
+
+- [#43](https://github.com/pilcrowOnPaper/auri/pull/43) by [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : Fix `prepare` script generating wrong version
+
+- [#41](https://github.com/pilcrowOnPaper/auri/pull/41) by [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : Update readme
+
 ## 0.6.0-beta.0
 
 ### Minor changes
 
 - [#37](https://github.com/pilcrowOnPaper/auri/pull/37) by [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : Add release config
+
   - Support beta releases
 
 ## 0.5.4
