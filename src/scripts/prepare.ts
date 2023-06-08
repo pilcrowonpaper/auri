@@ -194,12 +194,10 @@ export const prepare = async (): Promise<void> => {
 
 			if (currentReleaseStage === "beta") {
 				const [semver, betaFlag] = pkg.version.split("-");
-				if (targetStage === "beta") {
-					const betaVersion = Number(betaFlag.split(".")[1]);
-					const nextBetaFlag = ["beta", betaVersion + 1].join(".");
-					return [semver, nextBetaFlag].join("-");
-				}
-				return semver;
+				if (targetStage === "stable") return semver;
+				const betaVersion = Number(betaFlag.split(".")[1]);
+				const nextBetaFlag = ["beta", betaVersion + 1].join(".");
+				return [semver, nextBetaFlag].join("-");
 			}
 
 			const getNextSemver = () => {
@@ -220,9 +218,11 @@ export const prepare = async (): Promise<void> => {
 			};
 
 			const nextSemver = getNextSemver();
-			if (targetStage === "stable") return nextSemver;
-			const betaFlag = "beta.0";
-			return [nextSemver, betaFlag].join("-");
+			if (targetStage === "beta") {
+				const betaFlag = "beta.0";
+				return [nextSemver, betaFlag].join("-");
+			}
+			return nextSemver;
 		};
 
 		let nextVersion: string;
