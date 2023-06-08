@@ -1,5 +1,11 @@
 # auri
 
+## 0.6.0-beta.2
+
+### Minor changes
+
+- [#44](https://github.com/pilcrowOnPaper/auri/pull/44) by [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : Add `pull` as an optional changeset property
+
 ## 0.6.0-beta.1
 
 ### Patch changes
