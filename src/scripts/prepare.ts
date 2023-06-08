@@ -310,6 +310,7 @@ export const prepare = async (): Promise<void> => {
 	for (const fileName of changesetFileNames) {
 		fs.rmSync(path.join(process.cwd(), AURI_DIR, fileName));
 	}
+	fs.rmSync(path.join(process.cwd(), AURI_DIR, "release.config.json"));
 
 	const user = await getUser();
 
