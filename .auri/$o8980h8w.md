@@ -1,7 +1,0 @@
----
-package: "auri" # package name
-type: "minor" # "major", "minor", "patch"
-pull: 44
----
-
-Add `pull` as an optional changeset property
