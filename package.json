@@ -2,12 +2,13 @@
 	"name": "auri",
 	"version": "0.5.4",
 	"description": "Organize package changes and releases",
-	"main": "index.js",
-	"types": "index.d.ts",
-	"module": "index.js",
+	"main": "/dist/index.js",
+	"types": "/dist/index.d.ts",
+	"module": "/dist/index.js",
 	"type": "module",
 	"files": [
-		"**/*"
+		"dist",
+		"CHANGELOG.md"
 	],
 	"bin": {
 		"auri": "./index.js"
@@ -16,7 +17,7 @@
 		"build": "shx rm -rf ./dist/* && tsc",
 		"auri": "node ./dist/index.js",
 		"format": "pnpm exec prettier -w .",
-		"auri.publish": "pnpm build && cd dist && pnpm publish --no-git-checks --access public && cd ../",
+		"auri.publish": "pnpm build && pnpm publish --no-git-checks --access public",
 		"auri.format": "pnpm format",
 		"auri.deploy": "echo deploy"
 	},
@@ -33,11 +34,7 @@
 	"author": "pilcrowOnPaper",
 	"license": "MIT",
 	"exports": {
-		"./package.json": "./package.json",
-		".": "./index.js"
-	},
-	"typesVersions": {
-		"*": {}
+		".": "./dist/index.js"
 	},
 	"devDependencies": {
 		"@types/node": "^18.14.4",
