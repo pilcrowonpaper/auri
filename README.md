@@ -28,6 +28,8 @@ yarn auri
 
 ## Config
 
+File: `.auri/config.json`.
+
 ### `ignore`
 
 `string[]`. Paths to ignore when searching for packages. `node_modules` and `.git` already included.
@@ -69,6 +71,20 @@ This will be called before publishing packages.
 	"scripts": {
 		"auri.publish_setup": "pnpm install-some-dependencies"
 	}
+}
+```
+
+## Release config
+
+File: `.auri/release.config.json`.
+
+### `stage`
+
+Set to `stable` for a normal release, or `beta` for beta release. You do not need to create a new config file for a release if you're going to use the same release stage (e.g. `1.0.0-beta.0` => `1.0.0-beta.1`). This means you need to create a new release config file with `stage: stable` to publish a new stable release that was previously in beta.
+
+```json
+{
+	"stage": "beta"
 }
 ```
 
@@ -124,3 +140,7 @@ Compares version of package.json and one in the NPM registry, and runs `auri.pub
 ### `auri list`
 
 Lists all packages handled by Auri.
+
+### `auri release-config`
+
+Create a new `.auri/release.config.json` File
