@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import frontmatter from "front-matter";
 
-import { AURI_DIR } from "../shared/constant.js";
+import { AURI_DIR, AURI_RELEASE_CONFIG_FILE_PATH } from "../shared/constant.js";
 import {
 	Package,
 	getPackage,
@@ -310,7 +310,9 @@ export const prepare = async (): Promise<void> => {
 	for (const fileName of changesetFileNames) {
 		fs.rmSync(path.join(process.cwd(), AURI_DIR, fileName));
 	}
-	fs.rmSync(path.join(process.cwd(), AURI_DIR, "release.config.json"));
+	if (fs.existsSync(AURI_RELEASE_CONFIG_FILE_PATH)) {
+		fs.rmSync(AURI_RELEASE_CONFIG_FILE_PATH);
+	}
 
 	const user = await getUser();
 

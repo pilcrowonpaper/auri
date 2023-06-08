@@ -3,4 +3,4 @@ package: "auri" # package name
 type: "patch" # "major", "minor", "patch"
 ---
 
-Update readme
+Fix `prepare` command erroring if release config was missing
