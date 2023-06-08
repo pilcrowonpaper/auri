@@ -1,8 +1,9 @@
-import { addChangeset } from "./scripts/changeset.js";
+import { addChangeset } from "./scripts/add.js";
 import { prepare } from "./scripts/prepare.js";
 import { config, validateConfig } from "./shared/config.js";
 import { publish } from "./scripts/publish.js";
 import { listPackages } from "./scripts/list.js";
+import { addReleaseConfig } from "./scripts/release-config.js";
 
 validateConfig();
 
@@ -18,6 +19,8 @@ if (isDebugEnabled) {
 }
 
 const kill = () => process.exit();
+
+console.log(args)
 
 if (!args[0]) kill();
 
@@ -48,6 +51,13 @@ if (baseArg === "list") {
 		console.log("running list");
 	}
 	await listPackages();
+}
+
+if (baseArg === "release-config") {
+	if (isDebugEnabled) {
+		console.log("release-config");
+	}
+	await addReleaseConfig();
 }
 
 kill();

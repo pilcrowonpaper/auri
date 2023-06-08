@@ -1,4 +1,5 @@
 import childProcess from "child_process";
+import { error } from "../shared/error.js";
 
 export const execute = (
 	command: string,
@@ -9,13 +10,13 @@ export const execute = (
 	try {
 		childProcess.execSync(command, options);
 	} catch (e) {
-		const error = e as {
+		const result = e as {
 			stderr: null | Buffer;
 		};
-		if (error.stderr) {
-			console.log(error.stderr.toString());
-		}
-		exit();
+		if (result.stderr) {
+			return error(result.stderr.toString());
+		} 
+		return error("An unknown error occurred");
 	}
 };
 

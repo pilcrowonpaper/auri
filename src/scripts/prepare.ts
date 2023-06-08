@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import frontmatter from "front-matter";
 
-import { AURI_DIR, AURI_PUBLISH_COMMAND } from "../shared/constant.js";
+import { AURI_DIR } from "../shared/constant.js";
 import {
 	Package,
 	getPackage,
@@ -16,7 +16,7 @@ import {
 	githubApiRequest,
 	githubRepositoryApi
 } from "../utils/github.js";
-import { config } from "../shared/config.js";
+import { config, releaseConfig } from "../shared/config.js";
 import { execute } from "../utils/execute.js";
 import { formatRepository } from "../shared/format.js";
 import { error } from "../shared/error.js";
@@ -179,19 +179,50 @@ export const prepare = async (): Promise<void> => {
 	}[] = [];
 
 	for (const [packageName, changesets] of Object.entries(changesetsMap)) {
-		const pkg = await getPackage(packageName);
+		const pkg = getPackage(packageName);
+
+		const getCurrentReleaseStage = () => {
+			if (pkg.version.includes("beta")) {
+				return "beta";
+			}
+			return "stable";
+		};
 
 		const getNextVersion = (type: "patch" | "minor" | "major") => {
-			const [majorVersionSegment, minorVersionSegment, patchVersionSegment] =
-				pkg.version.split(".").map((val) => Number(val));
-			if (type === "major") return [majorVersionSegment + 1, 0, 0].join(".");
-			if (type === "minor")
-				return [majorVersionSegment, minorVersionSegment + 1, 0].join(".");
-			return [
-				majorVersionSegment,
-				minorVersionSegment,
-				patchVersionSegment + 1
-			].join(".");
+			const currentReleaseStage = getCurrentReleaseStage();
+			const targetStage = releaseConfig("stage") ?? null;
+
+			if (currentReleaseStage === "beta") {
+				const [semver, betaFlag] = pkg.version.split("-");
+				if (targetStage === "beta") {
+					const betaVersion = Number(betaFlag.split(".")[1]);
+					const nextBetaFlag = ["beta", betaVersion + 1].join(".");
+					return [semver, nextBetaFlag].join("-");
+				}
+				return semver;
+			}
+
+			const getNextSemver = () => {
+				const [majorVersionSegment, minorVersionSegment, patchVersionSegment] =
+					pkg.version.split(".").map((val) => Number(val));
+				if (type === "major") {
+					return [majorVersionSegment + 1, 0, 0].join(".");
+				}
+				if (type === "minor") {
+					return [majorVersionSegment, minorVersionSegment + 1, 0].join(".");
+				}
+
+				return [
+					majorVersionSegment,
+					minorVersionSegment,
+					patchVersionSegment + 1
+				].join(".");
+			};
+
+			const nextSemver = getNextSemver();
+			if (targetStage === "stable") return nextSemver;
+			const betaFlag = "beta.0";
+			return [nextSemver, betaFlag].join("-");
 		};
 
 		let nextVersion: string;
@@ -202,6 +233,7 @@ export const prepare = async (): Promise<void> => {
 		} else {
 			nextVersion = getNextVersion("patch");
 		}
+
 		packagesToUpdate.push({
 			package: pkg,
 			changesets,
@@ -278,6 +310,7 @@ export const prepare = async (): Promise<void> => {
 	for (const fileName of changesetFileNames) {
 		fs.rmSync(path.join(process.cwd(), AURI_DIR, fileName));
 	}
+	fs.rmSync(path.join(process.cwd(), AURI_DIR, "release.config.json"));
 
 	const user = await getUser();
 
