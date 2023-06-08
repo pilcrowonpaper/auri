@@ -12,7 +12,6 @@ export const addChangeset = async () => {
 		return error(`"${AURI_DIR}" directory does not exist`);
 	}
 
-
 	const changesetTemplate = `---
 package: "" # package name
 type: "" # "major", "minor", "patch"

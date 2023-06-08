@@ -1,5 +1,12 @@
 # auri
 
+## 0.6.0-beta.0
+
+### Minor changes
+
+- [#37](https://github.com/pilcrowOnPaper/auri/pull/37) by [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : Add release config
+  - Support beta releases
+
 ## 0.5.4
 
 ### Patch changes
