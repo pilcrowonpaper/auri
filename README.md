@@ -144,3 +144,11 @@ Lists all packages handled by Auri.
 ### `auri release-config`
 
 Create a new `.auri/release.config.json` File
+
+## Changeset
+
+```yaml
+package: "" # package name
+type: "" # "major", "minor", "patch"
+pull: "0" # pr number - optional
+```

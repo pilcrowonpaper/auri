@@ -22,14 +22,12 @@ import { formatRepository } from "../shared/format.js";
 import { error } from "../shared/error.js";
 import { deploy } from "../shared/deploy.js";
 
-type GithubPullRequest = {
-	number: number;
-};
-
 type Changeset = {
 	content: string;
-	author: string;
-	prNumber: number | null;
+	pull: {
+		author: string;
+		number: number;
+	} | null;
 };
 type PackageChangesets = {
 	patch: Changeset[];
@@ -38,6 +36,16 @@ type PackageChangesets = {
 };
 
 const isDebugEnabled = config("debug") ?? false;
+
+const isValidChangeType = (
+	maybeChangeType: unknown
+): maybeChangeType is "major" | "minor" | "patch" => {
+	return (
+		maybeChangeType === "patch" ||
+		maybeChangeType === "minor" ||
+		maybeChangeType === "major"
+	);
+};
 
 export const prepare = async (): Promise<void> => {
 	if (!fs.existsSync(path.resolve(AURI_DIR)))
@@ -77,13 +85,19 @@ export const prepare = async (): Promise<void> => {
 		const markdownContent = frontmatter<Record<string, unknown>>(fileText);
 		const changeType = markdownContent.attributes.type;
 		const packageName = markdownContent.attributes.package;
-		const isValidChangeType =
-			changeType === "patch" ||
-			changeType === "minor" ||
-			changeType === "major";
-		const isValidPackageName =
-			typeof packageName === "string" &&
-			publicPackages.some((pkg) => pkg.name === packageName);
+		const pullNumber = markdownContent.attributes.pull
+			? Number(markdownContent.attributes.pr)
+			: null;
+
+		const isValidPackageName = (
+			maybePackageName: unknown
+		): maybePackageName is string => {
+			return (
+				typeof maybePackageName === "string" &&
+				publicPackages.some((pkg) => pkg.name === maybePackageName)
+			);
+		};
+
 		if (isDebugEnabled) {
 			console.log(`file text: ${fileText}`);
 			console.log(`change type: ${changeType}`);
@@ -91,7 +105,9 @@ export const prepare = async (): Promise<void> => {
 			console.log(`is valid change type: ${isValidChangeType}`);
 			console.log(`is valid package name: ${isValidPackageName}`);
 		}
-		if (!isValidPackageName || !isValidChangeType) continue;
+		if (!isValidPackageName(packageName) || !isValidChangeType(changeType)) {
+			continue;
+		}
 
 		if (!(packageName in changesetsMap)) {
 			changesetsMap[packageName] = {
@@ -106,64 +122,29 @@ export const prepare = async (): Promise<void> => {
 			console.log(`changeset id: ${changesetId}`);
 		}
 
-		type GithubCommit = {
-			sha: string;
-			author: {
-				login: string;
-			};
-		};
-
-		const getCommit = async () => {
-			try {
-				const commits = await githubApiRequest<GithubCommit[]>(
-					githubRepositoryApi("commits"),
-					{
-						method: "GET",
-						queryParameters: {
-							path: `/.auri/${changesetId}.md`
-						}
-					}
-				);
-				const latestCommit = commits.at(0) ?? null;
-				if (!latestCommit) return error("Unknown commit");
-				return latestCommit;
-			} catch (e) {
-				if (e instanceof GithubApiError) githubApiError(e);
-				return error("Unknown error occurred");
+		const getChangesetPull = async () => {
+			if (pullNumber) {
+				return await getPull(pullNumber);
 			}
+			const commit = await getCommitFromChangesetId(changesetId);
+			return await getPullFromCommitSha(commit.sha);
 		};
 
-		const getPullRequest = async (commitSha: string) => {
-			try {
-				const pullRequests = await githubApiRequest<GithubPullRequest[]>(
-					githubRepositoryApi("commits", commitSha, "pulls"),
-					{
-						method: "GET"
-					}
-				);
-				const latestPullRequest = pullRequests.at(0) ?? null;
-				return latestPullRequest;
-			} catch (e) {
-				if (e instanceof GithubApiError) githubApiError(e);
-				return error("Unknown error occurred");
-			}
-		};
-
-		const commit = await getCommit();
-		const pullRequest = await getPullRequest(commit.sha);
+		const pull = await getChangesetPull();
 
 		if (isDebugEnabled) {
-			console.log(`commit author: ${commit.author}`);
-			console.log(`pr number: ${pullRequest?.number}`);
+			console.log(`commit author: ${pull?.user.login ?? "Unknown"}`);
+			console.log(`pr number: ${pull?.number ?? "Unknown"}`);
 		}
 
-		const metaData = {
-			author: commit.author.login,
-			prNumber: pullRequest?.number ?? null
-		};
 		changesetsMap[packageName][changeType].push({
 			content: markdownContent.body.trim(),
-			...metaData
+			pull: pull
+				? {
+						author: pull.user.login,
+						number: pull.number
+				  }
+				: null
 		});
 	}
 
@@ -323,12 +304,12 @@ export const prepare = async (): Promise<void> => {
 	execute('git commit -m "update release"');
 	execute("git push -f -u origin HEAD");
 
-	const getExistingPullRequest = async () => {
+	const getExistingPull = async () => {
 		const repositoryUrl = new URL(config("repository"));
 		const repositoryOwner = repositoryUrl.pathname.split("/").at(1) ?? null;
 		if (repositoryOwner === null) return error("Invalid config.repository url");
 		try {
-			const pullRequests = await githubApiRequest<GithubPullRequest[]>(
+			const pulls = await githubApiRequest<GithubPull[]>(
 				githubRepositoryApi("pulls"),
 				{
 					method: "GET",
@@ -339,7 +320,7 @@ export const prepare = async (): Promise<void> => {
 					}
 				}
 			);
-			if (pullRequests.length > 0) return pullRequests[0].number;
+			if (pulls.length > 0) return pulls[0].number;
 			return null;
 		} catch (e) {
 			if (e instanceof GithubApiError) githubApiError(e);
@@ -347,7 +328,7 @@ export const prepare = async (): Promise<void> => {
 		}
 	};
 
-	const existingPullRequestNumber = await getExistingPullRequest();
+	const existingPullNumber = await getExistingPull();
 
 	const changesBody = packagesToUpdate
 		.map((update) => [
@@ -362,7 +343,7 @@ export const prepare = async (): Promise<void> => {
 
 ${changesBody}`;
 
-	if (existingPullRequestNumber === null) {
+	if (existingPullNumber === null) {
 		await githubApiRequest(githubRepositoryApi("pulls"), {
 			method: "POST",
 			body: {
@@ -375,15 +356,12 @@ ${changesBody}`;
 		return;
 	}
 
-	await githubApiRequest(
-		githubRepositoryApi("pulls", existingPullRequestNumber),
-		{
-			method: "PATCH",
-			body: {
-				body: prBody
-			}
+	await githubApiRequest(githubRepositoryApi("pulls", existingPullNumber), {
+		method: "PATCH",
+		body: {
+			body: prBody
 		}
-	);
+	});
 };
 
 const generatePackageChangelog = (
@@ -395,21 +373,19 @@ const generatePackageChangelog = (
 	headingLevel: number
 ) => {
 	const getChangesetMdItem = (changeset: Changeset) => {
-		const authorLink = `[@${changeset.author}](${new URL(
-			changeset.author,
+		if (!changeset.pull) return changeset.content;
+		const authorLink = `[@${changeset.pull.author}](${new URL(
+			changeset.pull.author,
 			"https://github.com"
 		)})`;
-		if (changeset.prNumber === null) {
-			return `- By ${authorLink} : ${changeset.content}`;
-		}
 		const repositoryUrl = new URL(config("repository"));
 		const prPathname = path.join(
 			repositoryUrl.pathname,
 			"pull",
-			changeset.prNumber.toString()
+			changeset.pull.number.toString()
 		);
 		const prUrl = new URL(prPathname, "https://github.com");
-		return `- [#${changeset.prNumber}](${prUrl}) by ${authorLink} : ${changeset.content}`;
+		return `- [#${changeset.pull.number}](${prUrl}) by ${authorLink} : ${changeset.content}`;
 	};
 
 	const newLogItems: string[] = [];
@@ -432,4 +408,66 @@ const generatePackageChangelog = (
 		}
 	}
 	return newLogItems.join("\n\n");
+};
+
+const getPullFromCommitSha = async (commitSha: string) => {
+	try {
+		const pulls = await githubApiRequest<GithubPull[]>(
+			githubRepositoryApi("commits", commitSha, "pulls"),
+			{
+				method: "GET"
+			}
+		);
+		const latestPull = pulls.at(0) ?? null;
+		return latestPull;
+	} catch (e) {
+		if (e instanceof GithubApiError) return githubApiError(e);
+		return error("Unknown error occurred");
+	}
+};
+
+const getPull = async (pullNumber: number) => {
+	try {
+		const pull = await githubApiRequest<GithubPull>(
+			githubRepositoryApi("pull", pullNumber),
+			{
+				method: "GET"
+			}
+		);
+		return pull;
+	} catch (e) {
+		if (e instanceof GithubApiError) return githubApiError(e);
+		return error("Unknown error occurred");
+	}
+};
+
+const getCommitFromChangesetId = async (changesetId: string) => {
+	try {
+		const commits = await githubApiRequest<GithubCommit[]>(
+			githubRepositoryApi("commits"),
+			{
+				method: "GET",
+				queryParameters: {
+					path: `/.auri/${changesetId}.md`
+				}
+			}
+		);
+		const latestCommit = commits.at(0) ?? null;
+		if (!latestCommit) return error("Unknown commit");
+		return latestCommit;
+	} catch (e) {
+		if (e instanceof GithubApiError) githubApiError(e);
+		return error("Unknown error occurred");
+	}
+};
+
+type GithubCommit = {
+	sha: string;
+};
+
+type GithubPull = {
+	number: number;
+	user: {
+		login: string;
+	};
 };
