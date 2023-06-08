@@ -15,7 +15,7 @@ export const execute = (
 		};
 		if (result.stderr) {
 			return error(result.stderr.toString());
-		} 
+		}
 		return error("An unknown error occurred");
 	}
 };

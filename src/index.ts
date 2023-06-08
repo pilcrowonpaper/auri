@@ -20,7 +20,7 @@ if (isDebugEnabled) {
 
 const kill = () => process.exit();
 
-console.log(args)
+console.log(args);
 
 if (!args[0]) kill();
 
