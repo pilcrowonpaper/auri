@@ -11,7 +11,7 @@
 		"CHANGELOG.md"
 	],
 	"bin": {
-		"auri": "./index.js"
+		"auri": "./dist/index.js"
 	},
 	"scripts": {
 		"build": "shx rm -rf ./dist/* && tsc",
