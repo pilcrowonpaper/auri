@@ -2,8 +2,7 @@ import fs from "fs";
 import path from "path";
 import { error } from "./error.js";
 import { config } from "./config.js";
-import ignore from "ignore";
-import { AURI_DEPLOY_COMMAND, AURI_PUBLISH_COMMAND } from "./constant.js";
+import { AURI_BUILD_SCRIPT, AURI_DEPLOY_SCRIPT } from "./constant.js";
 
 export type Package = {
 	name: string;
@@ -47,36 +46,18 @@ export const getPackages = (): Package[] => {
 	});
 };
 
-const ignoreConfig = config("ignore") ?? [];
-const ignoreConfigAbsolutePaths = ignoreConfig.map((configPath) =>
-	path.join(process.cwd(), configPath)
-);
-
 const readdirRecursiveFileSync = (
 	workingAbsolutePath = process.cwd()
 ): string[] => {
-	const ig = ignore();
-	const defaultIgnoreAbsolutePaths = ["node_modules", ".git"].map((item) =>
-		path.join(workingAbsolutePath, item)
-	);
-	const ignoreItemAbsolutePaths = [
-		...ignoreConfigAbsolutePaths,
-		...defaultIgnoreAbsolutePaths
-	];
-	// ignore only accepts relative paths :(
-	ig.add(
-		ignoreItemAbsolutePaths.map((val) => {
-			if (val.includes("!"))
-				return `!.${val.replace("/", "").replace("!", "")}`;
-			return `.${val.replace("/", "")}`;
-		})
-	);
+	const ignoreDirNames = ["node_modules", ".git"];
 	const absoluteFilePaths: string[] = [];
 	const dirItemNames = fs.readdirSync(workingAbsolutePath);
 	for (const itemName of dirItemNames) {
 		const absoluteItemPath = path.join(workingAbsolutePath, itemName);
 		const stat = fs.lstatSync(absoluteItemPath);
-		const ignoreItem = ig.ignores(`.${absoluteItemPath.replace("/", "")}`);
+		const ignoreItem = ignoreDirNames.some((dirName) => {
+			return itemName.includes(dirName);
+		});
 		if (ignoreItem) continue;
 		if (stat.isFile()) {
 			absoluteFilePaths.push(absoluteItemPath);
@@ -110,12 +91,12 @@ export const getProjectPackageConfig = () => {
 
 export const getPublicPackages = (packages: Package[]) => {
 	return packages.filter((pkg) => {
-		return AURI_PUBLISH_COMMAND in (pkg.config.scripts ?? {});
+		return AURI_BUILD_SCRIPT in (pkg.config.scripts ?? {});
 	});
 };
 
 export const getDocumentationPackages = (packages: Package[]) => {
 	return packages.filter((pkg) => {
-		return AURI_DEPLOY_COMMAND in (pkg.config.scripts ?? {});
+		return AURI_DEPLOY_SCRIPT in (pkg.config.scripts ?? {});
 	});
 };

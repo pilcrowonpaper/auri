@@ -6,7 +6,6 @@ import { error } from "./error.js";
 type Config = {
 	repository: string;
 	debug?: boolean;
-	ignore?: string[];
 };
 
 type ReleaseConfig = {

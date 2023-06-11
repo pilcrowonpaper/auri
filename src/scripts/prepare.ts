@@ -3,12 +3,7 @@ import path from "path";
 import frontmatter from "front-matter";
 
 import { AURI_DIR, AURI_RELEASE_CONFIG_FILE_PATH } from "../shared/constant.js";
-import {
-	Package,
-	getPackage,
-	getPackages,
-	getPublicPackages
-} from "../shared/project.js";
+import { Package, getPackage, getPackages, getPublicPackages } from "../shared/project.js";
 import {
 	GithubApiError,
 	getUser,
@@ -67,11 +62,11 @@ export const prepare = async (): Promise<void> => {
 	}
 
 	const packages = getPackages();
-	const publicPackages = getPublicPackages(packages);
+	const publicPackages = getPublicPackages(packages)
 
 	if (isDebugEnabled) {
 		console.log("all packages");
-		console.log(packages.map((val) => val.name));
+		console.log(publicPackages.map((val) => val.name));
 	}
 
 	const changesetsMap: Record<string, PackageChangesets> = {};
