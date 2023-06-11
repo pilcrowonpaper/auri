@@ -1,7 +1,7 @@
 ---
 package: "auri" # package name
 type: "minor" # "major", "minor", "patch"
-pr: 49
+pull: 49
 ---
 
 [Breaking] Remove `auri.publish`
