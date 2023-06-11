@@ -2,6 +2,5 @@
 	"repository": "https://github.com/pilcrowOnPaper/auri",
 	"scripts": {
 		"format": "pnpm format"
-	},
-	"debug": true
+	}
 }

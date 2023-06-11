@@ -428,7 +428,7 @@ const getPullFromCommitSha = async (commitSha: string) => {
 const getPull = async (pullNumber: number) => {
 	try {
 		const pull = await githubApiRequest<GithubPull>(
-			githubRepositoryApi("pull", pullNumber),
+			githubRepositoryApi("pulls", pullNumber),
 			{
 				method: "GET"
 			}
