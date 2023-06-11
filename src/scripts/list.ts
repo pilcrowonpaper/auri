@@ -2,7 +2,7 @@ import {
 	Package,
 	getDocumentationPackages,
 	getPackages,
-	getPublicPackages,
+	getPublicPackages
 } from "../shared/project.js";
 
 export const listPackages = async () => {
@@ -15,7 +15,7 @@ export const listPackages = async () => {
 		}
 	};
 	const packages = getPackages();
-	const publicPackages = getPublicPackages(packages)
+	const publicPackages = getPublicPackages(packages);
 	const documentationPackages = getDocumentationPackages(packages);
 	console.log("Public packages");
 	logPackages(publicPackages);
