@@ -86,7 +86,7 @@ export const prepare = async (): Promise<void> => {
 		const changeType = markdownContent.attributes.type;
 		const packageName = markdownContent.attributes.package;
 		const pullNumber = markdownContent.attributes.pull
-			? Number(markdownContent.attributes.pr)
+			? Number(markdownContent.attributes.pull)
 			: null;
 
 		const isValidPackageName = (
