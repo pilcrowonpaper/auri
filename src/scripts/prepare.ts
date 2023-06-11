@@ -99,7 +99,6 @@ export const prepare = async (): Promise<void> => {
 		};
 
 		if (isDebugEnabled) {
-			console.log(`file text: ${fileText}`);
 			console.log(`change type: ${changeType}`);
 			console.log(`package name: ${packageName}`);
 			console.log(`is valid change type: ${isValidChangeType}`);
