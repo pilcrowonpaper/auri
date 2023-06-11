@@ -22,9 +22,13 @@ yarn auri
 2. Create `config.json` inside `.auri`
 3. Generate a Github personal access token with the following scopes: **`repo`, `user:email`**
 4. Store the token as `AURI_GITHUB_TOKEN` in Github actions secrets
-5. Add `auri.publish` script to each package's package.json - this will be the command Auri will use to publish
+5. Add `auri.build` script to each package's package.json - this will be the command Auri will use to publish
 6. Make sure "Read and write permission" is enabled in repository settings > Actions > General > Workflow permissions
 7. Add `auri.deploy` script to your documentation sites
+
+### Package detection
+
+Auri will consider all packages with a package.json with `auri.build` as one of its scripts as a public package, and with `auri.deploy` as a documentation.
 
 ## Config
 
@@ -90,12 +94,12 @@ Set to `stable` for a normal release, or `beta` for beta release. You do not nee
 
 ## Package `package.json`
 
-### `auri.publish`
+### `auri.build`
 
 ```json
 {
 	"scripts": {
-		"auri.publish": "pnpm i && pnpm build && pnpm publish"
+		"auri.build": "pnpm build"
 	}
 }
 ```

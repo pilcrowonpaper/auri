@@ -17,7 +17,7 @@
 		"build": "shx rm -rf ./dist/* && tsc",
 		"auri": "node ./dist/index.js",
 		"format": "pnpm exec prettier -w .",
-		"auri.publish": "pnpm build && pnpm publish --no-git-checks --access public",
+		"auri.build": "pnpm build",
 		"auri.format": "pnpm format",
 		"auri.deploy": "echo deploy"
 	},
@@ -46,7 +46,6 @@
 		"@actions/core": "^1.10.0",
 		"dotenv": "^16.0.3",
 		"front-matter": "^4.0.2",
-		"ignore": "^5.2.4",
 		"nanoid": "^4.0.1"
 	}
 }

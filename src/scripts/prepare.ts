@@ -71,7 +71,7 @@ export const prepare = async (): Promise<void> => {
 
 	if (isDebugEnabled) {
 		console.log("all packages");
-		console.log(packages.map((val) => val.name));
+		console.log(publicPackages.map((val) => val.name));
 	}
 
 	const changesetsMap: Record<string, PackageChangesets> = {};

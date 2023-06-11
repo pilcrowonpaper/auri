@@ -1,8 +1,10 @@
 import { config } from "../shared/config.js";
 import {
 	AURI_DIR,
-	AURI_PUBLISH_COMMAND,
-	AURI_PUBLISH_SETUP_COMMAND
+	AURI_PUBLISH_SETUP_SCRIPT,
+	PNPM_BETA_PUBLISH_COMMAND,
+	PNPM_PUBLISH_COMMAND,
+	AURI_BUILD_SCRIPT
 } from "../shared/constant.js";
 import { deploy } from "../shared/deploy.js";
 import { error } from "../shared/error.js";
@@ -20,9 +22,9 @@ const isDebugEnabled = config("debug") ?? false;
 const publishSetup = () => {
 	const projectPackageConfig = getProjectPackageConfig();
 	const projectScripts = projectPackageConfig.scripts ?? {};
-	const commandDefined = AURI_PUBLISH_SETUP_COMMAND in projectScripts;
+	const commandDefined = AURI_PUBLISH_SETUP_SCRIPT in projectScripts;
 	if (!commandDefined) return;
-	pnpm(AURI_PUBLISH_SETUP_COMMAND);
+	pnpm(AURI_PUBLISH_SETUP_SCRIPT);
 };
 
 export const publish = async () => {
@@ -87,9 +89,16 @@ export const publish = async () => {
 		if (publishedVersion === null) continue;
 		if (publishedVersion === workingVersion) continue;
 
-		pnpm(AURI_PUBLISH_COMMAND, {
-			cwd: pkg.directoryPath
-		});
+		pnpm(AURI_BUILD_SCRIPT);
+		if (workingVersion.includes("beta")) {
+			pnpm(PNPM_BETA_PUBLISH_COMMAND, {
+				cwd: pkg.directoryPath
+			});
+		} else {
+			pnpm(PNPM_PUBLISH_COMMAND, {
+				cwd: pkg.directoryPath
+			});
+		}
 	}
 	deploy();
 };
