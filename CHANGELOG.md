@@ -1,5 +1,13 @@
 # auri
 
+## 0.7.0-beta.0
+
+### Minor changes
+
+- [#49](https://github.com/pilcrowOnPaper/auri/pull/49) by [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : [Breaking] Remove `auri.publish`
+    - Replaced with `auri.build`
+    - All packages are published using `pnpm publish`
+
 ## 0.6.0
 
 ### Minor changes
