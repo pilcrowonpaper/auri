@@ -12,9 +12,9 @@
 
 - [#49](https://github.com/pilcrowOnPaper/auri/pull/49) by [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : [Breaking] Remove `auri.publish`
 
-    - Replaced with `auri.build`
+  - Replaced with `auri.build`
 
-    - All packages are published using `pnpm publish`
+  - All packages are published using `pnpm publish`
 
 ### Patch changes
 
@@ -28,9 +28,9 @@
 
 - [#49](https://github.com/pilcrowOnPaper/auri/pull/49) by [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : [Breaking] Remove `auri.publish`
 
-    - Replaced with `auri.build`
+  - Replaced with `auri.build`
 
-    - All packages are published using `pnpm publish`
+  - All packages are published using `pnpm publish`
 
 ## 0.6.0
 
