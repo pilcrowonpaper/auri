@@ -1,6 +1,7 @@
 ---
 package: "auri" # package name
-type: "minor" # "major", "minor", "patch"
+type: "patch" # "major", "minor", "patch"
+pull: "56"
 ---
 
 Fix `publish` command
