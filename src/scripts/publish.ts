@@ -89,7 +89,9 @@ export const publish = async () => {
 		if (publishedVersion === null) continue;
 		if (publishedVersion === workingVersion) continue;
 
-		pnpm(AURI_BUILD_SCRIPT);
+		pnpm(AURI_BUILD_SCRIPT, {
+			cwd: pkg.directoryPath
+		});
 		if (workingVersion.includes("beta")) {
 			pnpm(PNPM_BETA_PUBLISH_COMMAND, {
 				cwd: pkg.directoryPath
