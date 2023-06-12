@@ -21,6 +21,7 @@ import { execute } from "../utils/execute.js";
 import { formatRepository } from "../shared/format.js";
 import { error } from "../shared/error.js";
 import { deploy } from "../shared/deploy.js";
+import { parseBetaVersion, parseSemver } from "../utils/semver.js";
 
 type Changeset = {
 	content: string;
@@ -173,16 +174,15 @@ export const prepare = async (): Promise<void> => {
 			const targetStage = releaseConfig("stage") ?? null;
 
 			if (currentReleaseStage === "beta") {
-				const [semver, betaFlag] = pkg.version.split("-");
+				const { semver, betaVersion } = parseBetaVersion(pkg.version);
 				if (targetStage === "stable") return semver;
-				const betaVersion = Number(betaFlag.split(".")[1]);
 				const nextBetaFlag = ["beta", betaVersion + 1].join(".");
 				return [semver, nextBetaFlag].join("-");
 			}
 
 			const getNextSemver = () => {
 				const [majorVersionSegment, minorVersionSegment, patchVersionSegment] =
-					pkg.version.split(".").map((val) => Number(val));
+					parseSemver(pkg.version);
 				if (type === "major") {
 					return [majorVersionSegment + 1, 0, 0].join(".");
 				}

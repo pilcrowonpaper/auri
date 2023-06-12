@@ -16,6 +16,7 @@ import {
 } from "../shared/project.js";
 import fs from "fs";
 import path from "path";
+import { parseBetaVersion, parseSemver } from "../utils/semver.js";
 
 const isDebugEnabled = config("debug") ?? false;
 
@@ -47,7 +48,9 @@ export const publish = async () => {
 	const publicPackages = getPublicPackages(packages);
 
 	for (const pkg of publicPackages) {
-		const getPublishedVersion = async () => {
+		const workingVersion = pkg.version;
+
+		const isPublished = async () => {
 			const npmRegistryUrl = new URL(pkg.name, "https://registry.npmjs.org");
 			const npmRegistryResponse = await fetch(npmRegistryUrl);
 			if (!npmRegistryResponse.ok) {
@@ -70,29 +73,27 @@ export const publish = async () => {
 				}
 			}
 			const npmRegistry = (await npmRegistryResponse.json()) as {
-				"dist-tags": {
-					latest: string;
-				};
+				time: Record<string, string>;
 			};
-			const latestVersion = npmRegistry["dist-tags"].latest;
-			if (!latestVersion) return null;
-			return latestVersion;
+			const publishedVersions = Object.keys(npmRegistry.time);
+			return publishedVersions.includes(workingVersion);
 		};
-		const publishedVersion = await getPublishedVersion();
-		const workingVersion = pkg.version;
 
 		if (isDebugEnabled) {
 			console.log(`working package: ${pkg.name}`);
-			console.log(`published version : ${publishedVersion}`);
 			console.log(`working version : ${workingVersion}`);
 		}
-		if (publishedVersion === null) continue;
-		if (publishedVersion === workingVersion) continue;
+
+		const alreadyPublished = await isPublished();
+		if (alreadyPublished) continue;
 
 		pnpm(AURI_BUILD_SCRIPT, {
 			cwd: pkg.directoryPath
 		});
-		if (workingVersion.includes("beta")) {
+
+		const betaVersion = workingVersion.includes("beta");
+
+		if (betaVersion) {
 			pnpm(PNPM_BETA_PUBLISH_COMMAND, {
 				cwd: pkg.directoryPath
 			});
