@@ -1,5 +1,11 @@
 # auri
 
+## 0.7.2
+
+### Patch changes
+
+- [#59](https://github.com/pilcrowOnPaper/auri/pull/59) by [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : Fix published version detection
+
 ## 0.7.1
 
 ### Patch changes
