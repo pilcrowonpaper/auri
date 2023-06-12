@@ -1,1 +1,51 @@
-{"name":"auri","version":"0.7.0","description":"Organize package changes and releases","main":"/dist/index.js","types":"/dist/index.d.ts","module":"/dist/index.js","type":"module","files":["dist","CHANGELOG.md"],"bin":{"auri":"./dist/index.js"},"scripts":{"build":"shx rm -rf ./dist/* && tsc","auri":"node ./dist/index.js","format":"pnpm exec prettier -w .","auri.build":"pnpm build","auri.format":"pnpm format","auri.deploy":"echo deploy"},"keywords":["auri","npm","changesets"],"repository":{"type":"git","url":"https://github.com/pilcrowOnPaper/auri","directory":"/"},"author":"pilcrowOnPaper","license":"MIT","exports":{".":"./dist/index.js"},"devDependencies":{"@types/node":"^18.14.4","prettier":"^2.8.3","shx":"^0.3.4","typescript":"^4.9.4"},"dependencies":{"@actions/core":"^1.10.0","dotenv":"^16.0.3","front-matter":"^4.0.2","nanoid":"^4.0.1"}}
+{
+	"name": "auri",
+	"version": "0.7.0",
+	"description": "Organize package changes and releases",
+	"main": "/dist/index.js",
+	"types": "/dist/index.d.ts",
+	"module": "/dist/index.js",
+	"type": "module",
+	"files": [
+		"dist",
+		"CHANGELOG.md"
+	],
+	"bin": {
+		"auri": "./dist/index.js"
+	},
+	"scripts": {
+		"build": "shx rm -rf ./dist/* && tsc",
+		"auri": "node ./dist/index.js",
+		"format": "pnpm exec prettier -w .",
+		"auri.build": "pnpm build",
+		"auri.format": "pnpm format",
+		"auri.deploy": "echo deploy"
+	},
+	"keywords": [
+		"auri",
+		"npm",
+		"changesets"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/pilcrowOnPaper/auri",
+		"directory": "/"
+	},
+	"author": "pilcrowOnPaper",
+	"license": "MIT",
+	"exports": {
+		".": "./dist/index.js"
+	},
+	"devDependencies": {
+		"@types/node": "^18.14.4",
+		"prettier": "^2.8.3",
+		"shx": "^0.3.4",
+		"typescript": "^4.9.4"
+	},
+	"dependencies": {
+		"@actions/core": "^1.10.0",
+		"dotenv": "^16.0.3",
+		"front-matter": "^4.0.2",
+		"nanoid": "^4.0.1"
+	}
+}
