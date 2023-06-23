@@ -1,5 +1,11 @@
 # auri
 
+## 0.7.3
+
+### Patch changes
+
+- [#62](https://github.com/pilcrowOnPaper/auri/pull/62) by [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : Fix `auri.format` not getting called
+
 ## 0.7.2
 
 ### Patch changes
