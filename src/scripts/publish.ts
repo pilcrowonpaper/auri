@@ -1,3 +1,6 @@
+import fs from "fs";
+import path from "path";
+
 import { config } from "../shared/config.js";
 import {
 	AURI_DIR,
@@ -14,8 +17,7 @@ import {
 	getProjectPackageConfig,
 	getPublicPackages
 } from "../shared/project.js";
-import fs from "fs";
-import path from "path";
+
 
 const isDebugEnabled = config("debug") ?? false;
 

@@ -1,4 +1,5 @@
 import fs from "fs";
+
 import { AURI_RELEASE_CONFIG_FILE_PATH } from "../shared/constant.js";
 
 export const addReleaseConfig = async () => {

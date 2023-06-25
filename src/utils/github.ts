@@ -1,5 +1,6 @@
-import { config } from "../shared/config.js";
 import path from "path";
+
+import { config } from "../shared/config.js";
 import { env } from "./env.js";
 import { error } from "../shared/error.js";
 
