@@ -3,7 +3,7 @@ import path from "path";
 export const AURI_DIR = ".auri";
 
 export const AURI_FORMAT_SCRIPT = "auri.format";
-export const AURI_PUBLISH_SETUP_SCRIPT = "auri.project_setup";
+export const AURI_PUBLISH_SETUP_SCRIPT = "auri.publish_setup";
 
 export const AURI_BUILD_SCRIPT = "auri.build";
 export const AURI_DEPLOY_SCRIPT = "auri.deploy";
