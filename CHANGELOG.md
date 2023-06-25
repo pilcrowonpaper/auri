@@ -1,5 +1,11 @@
 # auri
 
+## 0.7.4
+
+### Patch changes
+
+- [#64](https://github.com/pilcrowOnPaper/auri/pull/64) by [@pilcrowOnPaper](https://github.com/pilcrowOnPaper) : Fix `auri.publish_setup` script not running
+
 ## 0.7.3
 
 ### Patch changes
