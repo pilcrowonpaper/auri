@@ -16,7 +16,6 @@ import {
 } from "../shared/project.js";
 import fs from "fs";
 import path from "path";
-import { parseBetaVersion, parseSemver } from "../utils/semver.js";
 
 const isDebugEnabled = config("debug") ?? false;
 
