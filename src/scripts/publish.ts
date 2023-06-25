@@ -18,7 +18,6 @@ import {
 	getPublicPackages
 } from "../shared/project.js";
 
-
 const isDebugEnabled = config("debug") ?? false;
 
 const publishSetup = () => {
