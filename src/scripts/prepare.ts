@@ -112,7 +112,7 @@ async function prepareCurrentVersion(packageMeta: PackageMeta): Promise<void> {
 	}
 	if (patchChangesets.length > 0) {
 		changelogBody += "### Patch changes\n";
-		for (const changeset of minorChangesets) {
+		for (const changeset of patchChangesets) {
 			changelogBody += `- ${changeset.content}\n`;
 		}
 	}
@@ -185,7 +185,7 @@ async function prepareMajorVersion(majorVersion: number, packageMeta: PackageMet
 	}
 	if (patchChangesets.length > 0) {
 		changelogBody += "### Patch changes\n";
-		for (const changeset of minorChangesets) {
+		for (const changeset of patchChangesets) {
 			changelogBody += `- ${changeset.content.trim()}\n`;
 		}
 	}
