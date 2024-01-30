@@ -71,8 +71,8 @@ async function prepareCurrentVersion(packageMeta: PackageMeta): Promise<void> {
 
 		// execute(`git config --global user.name "${user.username}"`);
 		// execute(`git config --global user.email "${user.email}"`);
-		execute("git checkout -b main.auri");
-		execute("git add .");
+		// execute("git checkout -b main.auri");
+		// execute("git add .");
 		// execute('git commit -m "update release"');
 		// execute("git push -f -u origin HEAD");
 		return;
@@ -128,15 +128,15 @@ async function prepareCurrentVersion(packageMeta: PackageMeta): Promise<void> {
 
 	// execute(`git config --global user.name "${user.username}"`);
 	// execute(`git config --global user.email "${user.email}"`);
-	execute("git checkout -b main.auri");
-	execute("git add .");
+	// execute("git checkout -b main.auri");
+	// execute("git add .");
 	// execute('git commit -m "update release"');
 	// execute("git push -f -u origin HEAD");
 }
 
 async function prepareMajorVersion(majorVersion: number, packageMeta: PackageMeta): Promise<void> {
 	const currentVersion = parseVersion(packageMeta.version);
-	if (majorVersion > currentVersion.major || currentVersion.next !== null) {
+	if (majorVersion !== currentVersion.major || currentVersion.next !== null) {
 		return await prepareNextMajorVersion(majorVersion, packageMeta);
 	}
 
@@ -201,8 +201,8 @@ async function prepareMajorVersion(majorVersion: number, packageMeta: PackageMet
 
 	// execute(`git config --global user.name "${user.username}"`);
 	// execute(`git config --global user.email "${user.email}"`);
-	execute(`git checkout -b v${majorVersion}.auri`);
-	execute("git add .");
+	// execute(`git checkout -b v${majorVersion}.auri`);
+	// execute("git add .");
 	// execute('git commit -m "update release"');
 	// execute("git push -f -u origin HEAD");
 }
@@ -212,12 +212,6 @@ async function prepareNextMajorVersion(
 	packageMeta: PackageMeta
 ): Promise<void> {
 	const currentVersion = parseVersion(packageMeta.version);
-	if (currentVersion.next !== null) {
-		throw new Error('Main branch package version must not be "next"');
-	}
-	if (majorVersion !== currentVersion.major) {
-		throw new Error("Invalid branch version");
-	}
 	const changesets = await getChangesets();
 	if (changesets.length === 0) {
 		return;
@@ -230,21 +224,35 @@ async function prepareNextMajorVersion(
 		nextVersion = [majorVersion, 0, 0].join(".") + `-next.0`;
 	}
 
-	const changelogExists = await fileExists("CHANGELOG.md");
-	const changelogTitle = `# \`${packageMeta.name}\`\n`;
-	if (!changelogExists) {
-		await fs.writeFile("CHANGELOG.md", changelogTitle);
-	}
-	let changelog = await fs.readFile("CHANGELOG.md").then((d) => d.toString());
-	let changelogBody = `## ${nextVersion}\n`;
-	for (const changeset of changesets) {
-		if (changeset.type !== "next") {
-			throw new Error('Changeset type must be "next"');
+	if (currentVersion.next === null) {
+		let changelog = await fs.readFile("CHANGELOG.md").then((d) => d.toString());
+		let changelogBody = `## ${nextVersion}\n`;
+		for (const changeset of changesets) {
+			if (changeset.type !== "next") {
+				throw new Error('Changeset type must be "next"');
+			}
+			changelogBody += `- ${changeset.content.trim()}\n`;
 		}
-		changelogBody += `- ${changeset.content.trim()}\n`;
+		const changelogTitle = `# \`${packageMeta.name}\`\n`;
+		changelog = changelogTitle + changelogBody;
+		await fs.writeFile("CHANGELOG.md", changelog);
+	} else {
+		const changelogExists = await fileExists("CHANGELOG.md");
+		const changelogTitle = `# \`${packageMeta.name}\`\n`;
+		if (!changelogExists) {
+			await fs.writeFile("CHANGELOG.md", changelogTitle);
+		}
+		let changelog = await fs.readFile("CHANGELOG.md").then((d) => d.toString());
+		let changelogBody = `## ${nextVersion}\n`;
+		for (const changeset of changesets) {
+			if (changeset.type !== "next") {
+				throw new Error('Changeset type must be "next"');
+			}
+			changelogBody += `- ${changeset.content.trim()}\n`;
+		}
+		changelog = changelogTitle + changelogBody + changelog.replace(changelogTitle, "");
+		await fs.writeFile("CHANGELOG.md", changelog);
 	}
-	changelog = changelogTitle + changelogBody + changelog.replace(changelogTitle, "");
-	await fs.writeFile("CHANGELOG.md", changelog);
 
 	const packageJSON = await fs.readFile("package.json");
 	const parsedPackageJSON: object = JSON.parse(packageJSON.toString());
@@ -255,8 +263,8 @@ async function prepareNextMajorVersion(
 
 	// execute(`git config --global user.name "${user.username}"`);
 	// execute(`git config --global user.email "${user.email}"`);
-	execute(`git checkout -b v${majorVersion}.auri`);
-	execute("git add .");
+	// execute(`git checkout -b v${majorVersion}.auri`);
+	// execute("git add .");
 	// execute('git commit -m "update release"');
 	// execute("git push -f -u origin HEAD");
 }
