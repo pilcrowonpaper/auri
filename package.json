@@ -16,13 +16,9 @@
 	"scripts": {
 		"build": "shx rm -rf ./dist/* && tsc",
 		"auri": "node ./dist/index.js",
-		"format": "pnpm exec prettier -w .",
-		"auri.build": "pnpm build",
-		"auri.format": "pnpm format",
-		"auri.deploy": "echo deploy"
+		"format": "pnpm exec prettier -w ."
 	},
 	"keywords": [
-		"auri",
 		"npm",
 		"changesets"
 	],

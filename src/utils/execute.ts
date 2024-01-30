@@ -1,7 +1,5 @@
 import childProcess from "child_process";
 
-import { error } from "../shared/error.js";
-
 export const execute = (
 	command: string,
 	options?: {
@@ -15,9 +13,9 @@ export const execute = (
 			stderr: null | Buffer;
 		};
 		if (result.stderr) {
-			return error(result.stderr.toString());
+			throw new Error(result.stderr.toString());
 		}
-		return error("An unknown error occurred");
+		throw new Error("An unknown error occurred");
 	}
 };
 

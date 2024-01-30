@@ -24,9 +24,7 @@ export function parseVersion(version: string): VersionMeta {
 	return meta;
 }
 
-function parseSemver(
-	semver: string
-): [major: number, minor: number, patch: number] {
+function parseSemver(semver: string): [major: number, minor: number, patch: number] {
 	const parts = semver.split(".").map((part) => Number(part));
 	if (parts.length !== 3) {
 		throw new Error("Invalid semver");

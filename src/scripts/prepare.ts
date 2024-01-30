@@ -1,3 +1,5 @@
+// TODO: create PR
+
 import fs from "fs/promises";
 import path from "path";
 import { parseVersion } from "../utils/version.js";
@@ -71,10 +73,11 @@ async function prepareCurrentVersion(packageMeta: PackageMeta): Promise<void> {
 
 		// execute(`git config --global user.name "${user.username}"`);
 		// execute(`git config --global user.email "${user.email}"`);
-		// execute("git checkout -b main.auri");
-		// execute("git add .");
-		// execute('git commit -m "update release"');
-		// execute("git push -f -u origin HEAD");
+		execute("git checkout -b main.auri");
+		execute("git add .");
+		execute('git commit -m "update release"');
+		execute("git push -f -u origin HEAD");
+		execute("pnpm prettier -w CHANGELOG.md package.json")
 		return;
 	}
 
@@ -128,10 +131,11 @@ async function prepareCurrentVersion(packageMeta: PackageMeta): Promise<void> {
 
 	// execute(`git config --global user.name "${user.username}"`);
 	// execute(`git config --global user.email "${user.email}"`);
-	// execute("git checkout -b main.auri");
-	// execute("git add .");
-	// execute('git commit -m "update release"');
-	// execute("git push -f -u origin HEAD");
+	execute("git checkout -b main.auri");
+	execute("git add .");
+	execute('git commit -m "update release"');
+	execute("git push -f -u origin HEAD");
+	execute("pnpm prettier -w CHANGELOG.md package.json")
 }
 
 async function prepareMajorVersion(majorVersion: number, packageMeta: PackageMeta): Promise<void> {
@@ -201,10 +205,11 @@ async function prepareMajorVersion(majorVersion: number, packageMeta: PackageMet
 
 	// execute(`git config --global user.name "${user.username}"`);
 	// execute(`git config --global user.email "${user.email}"`);
-	// execute(`git checkout -b v${majorVersion}.auri`);
-	// execute("git add .");
-	// execute('git commit -m "update release"');
-	// execute("git push -f -u origin HEAD");
+	execute(`git checkout -b v${majorVersion}.auri`);
+	execute("git add .");
+	execute('git commit -m "update release"');
+	execute("git push -f -u origin HEAD");
+	execute("pnpm prettier -w CHANGELOG.md package.json")
 }
 
 async function prepareNextMajorVersion(
@@ -263,10 +268,11 @@ async function prepareNextMajorVersion(
 
 	// execute(`git config --global user.name "${user.username}"`);
 	// execute(`git config --global user.email "${user.email}"`);
-	// execute(`git checkout -b v${majorVersion}.auri`);
-	// execute("git add .");
-	// execute('git commit -m "update release"');
-	// execute("git push -f -u origin HEAD");
+	execute(`git checkout -b v${majorVersion}.auri`);
+	execute("git add .");
+	execute('git commit -m "update release"');
+	execute("git push -f -u origin HEAD");
+	execute("pnpm prettier -w CHANGELOG.md package.json")
 }
 
 interface PackageMeta {

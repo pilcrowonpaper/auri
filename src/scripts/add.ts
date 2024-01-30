@@ -1,11 +1,9 @@
 import fs from "fs";
 import path from "path";
 
-import { error } from "../shared/error.js";
-
 export const addChangeset = async (type: "patch" | "minor" | "next") => {
 	if (!fs.existsSync(path.join(process.cwd(), ".changesets"))) {
-		return error(`".changesets" directory does not exist`);
+		throw new Error(`".changesets" directory does not exist`);
 	}
 	fs.writeFileSync(path.join(process.cwd(), ".changesets", `${generateId()}.${type}.md`), "");
 };
