@@ -1,5 +1,5 @@
 {
 	"useTabs": true,
 	"trailingComma": "none",
-	"pluginSearchDirs": ["."]
+	"printWidth": 100
 }

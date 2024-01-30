@@ -1,25 +1,20 @@
 import fs from "fs";
 import path from "path";
-import { customAlphabet } from "nanoid";
 
-import { AURI_DIR } from "../shared/constant.js";
 import { error } from "../shared/error.js";
 
-export const addChangeset = async () => {
-	const ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz";
-	const generateChangesetId = customAlphabet(ALPHABET, 8);
-
-	if (!fs.existsSync(path.join(process.cwd(), AURI_DIR))) {
-		return error(`"${AURI_DIR}" directory does not exist`);
+export const addChangeset = async (type: "patch" | "minor" | "next") => {
+	if (!fs.existsSync(path.join(process.cwd(), ".changesets"))) {
+		return error(`".changesets" directory does not exist`);
 	}
-
-	const changesetTemplate = `---
-package: "" # package name
-type: "" # "major", "minor", "patch"
----`;
-
-	fs.writeFileSync(
-		path.join(process.cwd(), AURI_DIR, `$${generateChangesetId()}.md`),
-		changesetTemplate
-	);
+	fs.writeFileSync(path.join(process.cwd(), ".changesets", `${generateId()}.${type}.md`), "");
 };
+
+function generateId(): string {
+	const alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
+	let result = "";
+	for (let i = 0; i < 8; i++) {
+		result += alphabet[Math.floor(Math.random() * alphabet.length)];
+	}
+	return result;
+}
