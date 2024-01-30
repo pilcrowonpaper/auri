@@ -1,4 +1,4 @@
-// import { publish } from "./scripts/publish.js";
+import { publish } from "./scripts/publish.js";
 // import { listPackages } from "./scripts/list.js";
 // import { addReleaseConfig } from "./scripts/release-config.js";
 import { prepareRelease } from "./scripts/prepare.js";
@@ -14,26 +14,26 @@ if (!args[0]) kill();
 const baseArg = args[0];
 
 if (baseArg === "add") {
-	const type = args.at(1)  ?? null
+	const type = args.at(1) ?? null;
 	if (type === null) {
-		throw new Error("Missing arguments")
+		throw new Error("Missing arguments");
 	}
 	if (type !== "patch" && type !== "minor" && type !== "next") {
-		throw new Error("Invalid argument")
+		throw new Error("Invalid argument");
 	}
 	await addChangeset(type);
 }
+
 if (baseArg === "prepare") {
-	const branch = args.at(1)  ?? null
+	const branch = args.at(1) ?? null;
 	if (branch === null) {
-		throw new Error("Missing arguments")
+		throw new Error("Missing arguments");
 	}
 	await prepareRelease(branch);
 }
 
-// if (baseArg === "publish") {
-// 	await publish();
-// }
-
+if (baseArg === "publish") {
+	await publish();
+}
 
 kill();
