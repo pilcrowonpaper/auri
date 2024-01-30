@@ -1,7 +1,3 @@
-# `auri`
-## 0.8.0
-### Minor changes
-- Hello
 # auri
 
 ## 0.7.4
