@@ -193,7 +193,7 @@ async function prepareCurrentVersion(packageMeta: PackageMeta): Promise<void> {
 async function prepareMajorVersion(majorVersion: number, packageMeta: PackageMeta): Promise<void> {
 	const currentVersion = parseVersion(packageMeta.version);
 	if (majorVersion !== currentVersion.major || currentVersion.next !== null) {
-		// stable => next release
+		// stable/next => next release
 		return await prepareNextMajorVersion(majorVersion, packageMeta);
 	}
 
