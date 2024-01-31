@@ -1,6 +1,6 @@
 {
 	"name": "auri",
-	"version": "0.9.4",
+	"version": "1.0.0-next.1",
 	"description": "Organize package changes and releases",
 	"main": "/dist/index.js",
 	"types": "/dist/index.d.ts",
