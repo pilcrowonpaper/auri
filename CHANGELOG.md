@@ -1,5 +1,11 @@
 # auri
 
+## 0.8.0
+
+### Minor changes
+
+- Breaking: Reset project to only support monolith repositories
+
 ## 0.7.4
 
 ### Patch changes
