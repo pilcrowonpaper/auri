@@ -67,6 +67,7 @@ async function prepareCurrentVersion(packageMeta: PackageMeta): Promise<void> {
 			force: true
 		});
 		commitChanges("main");
+		execute("git checkout main"); // reset branch
 
 		let releaseRequestBody = "";
 		for (const changeset of changesets) {
@@ -153,6 +154,7 @@ async function prepareCurrentVersion(packageMeta: PackageMeta): Promise<void> {
 		force: true
 	});
 	commitChanges("main");
+	execute("git checkout main"); // reset branch
 
 	let releaseRequestBody = "";
 	if (minorChangesets.length > 0) {
@@ -273,6 +275,7 @@ async function prepareMajorVersion(majorVersion: number, packageMeta: PackageMet
 		force: true
 	});
 	commitChanges(`v${majorVersion}`);
+	execute(`git checkout v${majorVersion}`); // reset branch
 
 	let releaseRequestBody = "";
 	if (minorChangesets.length > 0) {
@@ -385,6 +388,7 @@ async function prepareNextMajorVersion(
 		force: true
 	});
 	commitChanges(`v${majorVersion}`);
+	execute(`git checkout v${majorVersion}`); // reset branch
 
 	let releaseRequestBody = "";
 	for (const changeset of changesets) {
@@ -484,5 +488,4 @@ async function commitChanges(branch: string) {
 	execute("git add .");
 	execute('git commit -m "update release"');
 	execute("git push -f -u origin HEAD");
-	execute(`git checkout ${branch}`);
 }
