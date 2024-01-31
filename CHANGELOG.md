@@ -1,5 +1,11 @@
 # auri
 
+## 0.9.3
+
+### Patch changes
+
+- Fix Git checkout
+
 ## 0.9.2
 
 ### Patch changes
