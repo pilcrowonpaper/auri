@@ -1,5 +1,11 @@
 # `auri`
 
+## 0.9.0
+
+### Minor changes
+
+- Breaking: Generate GitHub releases on publish ([#73](https://github.com/pilcrowOnPaper/auri/pull/73))
+
 ## 0.8.1
 
 ### Patch changes
