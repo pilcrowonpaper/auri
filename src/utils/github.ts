@@ -285,7 +285,7 @@ export async function createRelease(
 		target_commitish: branch,
 		name: `v${version}`,
 		body: options?.body,
-		make_latest: options?.latest ?? true,
+		make_latest: String(options?.latest ?? true),
 		prerelease: options?.prerelease
 	});
 	const response = await fetch(
