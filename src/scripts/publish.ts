@@ -13,7 +13,7 @@ export async function publish(branch: string) {
 
 	console.log(packageMeta);
 
-	if (packageMeta.version.includes(".next-")) {
+	if (packageMeta.version.includes("-next.")) {
 		execute("npm install && npm run build && npm publish --access public --tag next");
 		const body = await getLatestChangelogBody();
 		await createRelease(packageMeta.repository, branch, packageMeta.version, {
