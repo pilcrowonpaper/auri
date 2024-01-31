@@ -66,7 +66,7 @@ async function prepareCurrentVersion(packageMeta: PackageMeta): Promise<void> {
 		await fs.writeFile("package.json", JSON.stringify(parsedPackageJSON));
 		await fs.rm(".changesets", {
 			recursive: true,
-			force: true
+			// force: true
 		});
 		commitChanges("main");
 		execute("git checkout main"); // reset branch
