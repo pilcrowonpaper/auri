@@ -1,108 +1,141 @@
-// import path from "path";
+import { env } from "./env.js";
 
-// import { env } from "./env.js";
+export async function getPullRequestFromBranches(
+	repository: Repository,
+	head: string,
+    base: string
+): Promise<PullRequest | null> {
+	const token = env("AURI_GITHUB_TOKEN");
+	const url = new URL(`https://api.github.com/repos/${repository.owner}/${repository.name}/pulls`);
+	url.searchParams.set("head", head);
+	url.searchParams.set("base", base);
+	url.searchParams.set("state", "open");
+	const response = await fetch(url, {
+		headers: {
+			Authorization: `Bearer ${token}`,
+			Accept: "application/json"
+		}
+	});
+	if (!response.ok) {
+		throw new Error("Failed to fetch data from GitHub");
+	}
+	const existingPullRequests: GitHubPullRequestBody[] = await response.json();
+	const githubPullRequest = existingPullRequests.at(0) ?? null;
+	if (!githubPullRequest) {
+		return null;
+	}
+	const pullRequest: PullRequest = {
+		number: githubPullRequest.id,
+		userId: githubPullRequest.user.id
+	};
+	return pullRequest;
+}
 
-// export const githubRepositoryApi = (
-// 	...localPathSegments: (string | number)[]
-// ) => {
-// 	const repositoryUrl = new URL(config("repository"));
-// 	const repositoryPathname = repositoryUrl.pathname;
-// 	return ["repos", repositoryPathname, ...localPathSegments];
-// };
+export async function createPullRequest(
+	repository: Repository,
+	title: string,
+	head: string,
+	base: string,
+	options?: {
+		body?: string;
+	}
+): Promise<PullRequest> {
+	const token = env("AURI_GITHUB_TOKEN");
+	const url = new URL(`https://api.github.com/repos/${repository.owner}/${repository.name}/pulls`);
+	const body = JSON.stringify({
+		head,
+		base,
+		title,
+		body: options?.body
+	});
+	const response = await fetch(url, {
+		method: "POST",
+		body,
+		headers: {
+			Authorization: `Bearer ${token}`,
+			Accept: "application/json"
+		}
+	});
+	if (!response.ok) {
+		throw new Error("Failed to fetch data from GitHub");
+	}
+	const githubPullRequest: GitHubPullRequestBody = await response.json();
+	const pullRequest: PullRequest = {
+		number: githubPullRequest.id,
+		userId: githubPullRequest.user.id
+	};
+	return pullRequest;
+}
 
-// export const githubApiRequest = async <T extends any = void>(
-// 	pathSegments: (string | number)[],
-// 	options:
-// 		| {
-// 				method: "GET";
-// 				queryParameters?: Record<string, any>;
-// 		  }
-// 		| {
-// 				method: "POST" | "PUT" | "DELETE" | "PATCH";
-// 				body?: Record<string, any>;
-// 		  }
-// ) => {
-// 	const url = new URL(
-// 		path.join(...pathSegments.map((val) => val.toString())),
-// 		"https://api.github.com"
-// 	);
-// 	const requestInit = {} as RequestInit;
-// 	const GITHUB_TOKEN = env("AURI_GITHUB_TOKEN");
-// 	requestInit.method = options.method;
-// 	requestInit.headers = {
-// 		Authorization: `Bearer ${GITHUB_TOKEN}`
-// 	};
-// 	if (options.method === "GET") {
-// 		for (const [searchQueryKey, searchQueryValue] of Object.entries(
-// 			options.queryParameters ?? {}
-// 		)) {
-// 			url.searchParams.set(searchQueryKey, searchQueryValue);
-// 		}
-// 	} else {
-// 		requestInit.body = JSON.stringify(options.body ?? {});
-// 	}
-// 	const response = await fetch(url, requestInit);
-// 	if (!response.ok) {
-// 		const status = response.status;
-// 		let errorMessage: string;
-// 		try {
-// 			const errorBody = (await response.json()) as {
-// 				message: string;
-// 			};
-// 			errorMessage = errorBody.message;
-// 		} catch {
-// 			errorMessage = "Unknown error";
-// 		}
-// 		throw new GithubApiError(errorMessage, status, url.toString());
-// 	}
-// 	return (await response.json()) as T;
-// };
+export async function updatePullRequest(
+	repository: Repository,
+	pullRequestNumber: number,
+	options?: {
+		title?: string;
+		body?: string;
+	}
+): Promise<void> {
+	const token = env("AURI_GITHUB_TOKEN");
+	const url = new URL(
+		`https://api.github.com/repos/${repository.owner}/${repository.name}/pulls/${pullRequestNumber}`
+	);
+	const body = JSON.stringify({
+		title: options?.title,
+		body: options?.body
+	});
+	const response = await fetch(url, {
+		method: "PATCH",
+		body,
+		headers: {
+			Authorization: `Bearer ${token}`,
+			Accept: "application/json"
+		}
+	});
+	if (!response.ok) {
+		throw new Error("Failed to fetch data from GitHub");
+	}
+}
 
-// export class GithubApiError extends Error {
-// 	public status: number;
-// 	public url: string;
-// 	constructor(message: string, status: number, url: string) {
-// 		super(message);
-// 		this.status = status;
-// 		this.url = url;
-// 	}
-// }
+export interface PullRequest {
+	number: number;
+	userId: number;
+}
 
-// export const getUser = async () => {
-// 	const getUsername = async () => {
-// 		try {
-// 			const user = await githubApiRequest<{
-// 				login: string;
-// 				email: string;
-// 			}>(["user"], {
-// 				method: "GET"
-// 			});
-// 			return user.login;
-// 		} catch (e) {
-// 			if (e instanceof GithubApiError) githubApiError(e);
-// 			return error("Unknown error occurred");
-// 		}
-// 	};
-// 	const getUserEmails = async () => {
-// 		try {
-// 			return await githubApiRequest<{ email: string; primary: boolean }[]>(
-// 				["user", "emails"],
-// 				{
-// 					method: "GET"
-// 				}
-// 			);
-// 		} catch (e) {
-// 			if (e instanceof GithubApiError) githubApiError(e);
-// 			return error("Unknown error occurred");
-// 		}
-// 	};
+interface GitHubPullRequestBody {
+	id: number;
+	user: GitHubUserBody;
+}
 
-// 	const username = await getUsername();
-// 	const emails = await getUserEmails();
-// 	const primaryEmail = emails.find((email) => email.primary);
-// 	if (!primaryEmail) return error("Primary email not defined");
-// 	return {
-// 		username,
-// 		email: primaryEmail.email
-// 	};
-// };
+interface GitHubUserBody {
+	id: number;
+	login: string;
+}
+
+export function parseRepositoryURL(repositoryURL: string): Repository | null {
+	const parsed = safeParseURL(repositoryURL);
+	if (!parsed || parsed.origin !== "https://github.com") {
+		return null;
+	}
+	const pathnameParts = parsed.pathname.replace("/", "").split("/");
+	if (pathnameParts.length < 2) {
+		return null;
+	}
+	const repository: Repository = {
+		owner: pathnameParts[0],
+		name: pathnameParts[1]
+	};
+	return repository;
+}
+
+export interface Repository {
+	owner: string;
+	name: string;
+}
+
+function safeParseURL(url: string): URL | null {
+	try {
+		return new URL(url);
+	} catch {
+		return null;
+	}
+}

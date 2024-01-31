@@ -4,6 +4,14 @@ import fs from "fs/promises";
 import path from "path";
 import { parseVersion } from "../utils/version.js";
 import { execute } from "../utils/execute.js";
+import {
+	createPullRequest,
+	getPullRequestFromBranches,
+	parseRepositoryURL,
+	updatePullRequest
+} from "../utils/github.js";
+
+import type { Repository } from "../utils/github.js";
 
 export async function prepareRelease(branch: string): Promise<void> {
 	const packageJSON = await fs.readFile("package.json");
@@ -28,11 +36,15 @@ export async function prepareRelease(branch: string): Promise<void> {
 	) {
 		throw new Error('package.json missing field "repository.url"');
 	}
+	const repository = parseRepositoryURL(parsedPackageJSON.repository.url);
+	if (!repository) {
+		throw new Error('Invalid "repository.url" field in package.json');
+	}
 
 	const packageMeta: PackageMeta = {
 		name: parsedPackageJSON.name,
 		version: parsedPackageJSON.version,
-		repository: parsedPackageJSON.repository.url
+		repository
 	};
 
 	if (branch === "main" || branch === "master") {
@@ -55,6 +67,7 @@ async function prepareCurrentVersion(packageMeta: PackageMeta): Promise<void> {
 	const currentVersion = parseVersion(packageMeta.version);
 
 	if (currentVersion.next !== null) {
+		// next => stable release
 		const nextVersion = [currentVersion.major, 0, 0].join(".");
 		let changelogBody = `## ${nextVersion}\n`;
 		for (const changeset of changesets) {
@@ -73,14 +86,21 @@ async function prepareCurrentVersion(packageMeta: PackageMeta): Promise<void> {
 
 		// execute(`git config --global user.name "${user.username}"`);
 		// execute(`git config --global user.email "${user.email}"`);
-		execute("git checkout -b main.auri");
+		execute(`git checkout -b main.auri`);
 		execute("git add .");
 		execute('git commit -m "update release"');
 		execute("git push -f -u origin HEAD");
-		execute("pnpm prettier -w CHANGELOG.md package.json")
+		execute("npm exec prettier -w CHANGELOG.md package.json");
+
+		let releaseRequestBody = "";
+		for (const changeset of changesets) {
+			releaseRequestBody += `- ${changeset.content}\n`;
+		}
+		await createReleaseRequest(packageMeta.repository, "main", nextVersion, releaseRequestBody);
 		return;
 	}
 
+	// stable => stable release
 	const minorChangesets: Changeset[] = [];
 	const patchChangesets: Changeset[] = [];
 	for (const changeset of changesets) {
@@ -135,15 +155,32 @@ async function prepareCurrentVersion(packageMeta: PackageMeta): Promise<void> {
 	execute("git add .");
 	execute('git commit -m "update release"');
 	execute("git push -f -u origin HEAD");
-	execute("pnpm prettier -w CHANGELOG.md package.json")
+	execute("npm exec prettier -w CHANGELOG.md package.json");
+
+	let releaseRequestBody = "";
+	if (minorChangesets.length > 0) {
+		releaseRequestBody += "## Minor changes\n";
+		for (const changeset of minorChangesets) {
+			releaseRequestBody += `- ${changeset.content}\n`;
+		}
+	}
+	if (patchChangesets.length > 0) {
+		releaseRequestBody += "## Patch changes\n";
+		for (const changeset of patchChangesets) {
+			releaseRequestBody += `- ${changeset.content}\n`;
+		}
+	}
+	await createReleaseRequest(packageMeta.repository, "main", nextVersion, releaseRequestBody);
 }
 
 async function prepareMajorVersion(majorVersion: number, packageMeta: PackageMeta): Promise<void> {
 	const currentVersion = parseVersion(packageMeta.version);
 	if (majorVersion !== currentVersion.major || currentVersion.next !== null) {
+		// stable => next release
 		return await prepareNextMajorVersion(majorVersion, packageMeta);
 	}
 
+	// stable => stable release
 	if (currentVersion.next !== null) {
 		throw new Error('Main branch package version must not be "next"');
 	}
@@ -209,7 +246,27 @@ async function prepareMajorVersion(majorVersion: number, packageMeta: PackageMet
 	execute("git add .");
 	execute('git commit -m "update release"');
 	execute("git push -f -u origin HEAD");
-	execute("pnpm prettier -w CHANGELOG.md package.json")
+	execute("npm exec prettier -w CHANGELOG.md package.json");
+
+	let releaseRequestBody = "";
+	if (minorChangesets.length > 0) {
+		releaseRequestBody += "## Minor changes\n";
+		for (const changeset of minorChangesets) {
+			releaseRequestBody += `- ${changeset.content}\n`;
+		}
+	}
+	if (patchChangesets.length > 0) {
+		releaseRequestBody += "## Patch changes\n";
+		for (const changeset of patchChangesets) {
+			releaseRequestBody += `- ${changeset.content}\n`;
+		}
+	}
+	await createReleaseRequest(
+		packageMeta.repository,
+		`v${majorVersion}`,
+		nextVersion,
+		releaseRequestBody
+	);
 }
 
 async function prepareNextMajorVersion(
@@ -272,13 +329,24 @@ async function prepareNextMajorVersion(
 	execute("git add .");
 	execute('git commit -m "update release"');
 	execute("git push -f -u origin HEAD");
-	execute("pnpm prettier -w CHANGELOG.md package.json")
+	execute("npm exec prettier -w CHANGELOG.md package.json");
+
+	let releaseRequestBody = "";
+	for (const changeset of changesets) {
+		releaseRequestBody += `- ${changeset.content}\n`;
+	}
+	await createReleaseRequest(
+		packageMeta.repository,
+		`v${majorVersion}`,
+		nextVersion,
+		releaseRequestBody
+	);
 }
 
 interface PackageMeta {
 	name: string;
 	version: string;
-	repository: string;
+	repository: Repository;
 }
 
 async function getChangesets(): Promise<Changeset[]> {
@@ -329,4 +397,26 @@ async function fileExists(path: string): Promise<boolean> {
 		.stat(path)
 		.then((stat) => stat.isFile())
 		.catch(() => false);
+}
+
+async function createReleaseRequest(
+	repository: Repository,
+	branch: string,
+	nextVersion: string,
+	body: string
+) {
+	const head = `${repository.owner}:${branch}.auri`;
+	const base = branch;
+	const existingPullRequest = await getPullRequestFromBranches(repository, head, base);
+	const title = `Auri: Release request (v${nextVersion})`;
+	if (existingPullRequest) {
+		await updatePullRequest(repository, existingPullRequest.number, {
+			title,
+			body
+		});
+	} else {
+		await createPullRequest(repository, title, head, base, {
+			body
+		});
+	}
 }
