@@ -18,12 +18,12 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20
-      - name: Install Auri
-        run: npm i -g auri
+      - name: Install dependencies
+        run: npm i && npm run build
       - name: Prepare release
-        run: pnpm auri prepare ${{ github.ref_name }}
+        run: npm run auri prepare ${{ github.ref_name }}
       - name: Publish package
-        run: pnpm auri publish
+        run: npm run auri publish
       - name: Check if ".changesets" directory has files
         id: check-changesets
         run: |
@@ -31,7 +31,7 @@ jobs:
             echo "changesets=0" >> "$GITHUB_OUTPUT"
           else
             echo "changesets=1" >> "$GITHUB_OUTPUT"
-          fi
+          fi˝
       - name: Publish docs
         if: steps.check-changesets.outputs.changesets == 0
         run: echo "Publish!"
