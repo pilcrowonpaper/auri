@@ -1,3 +1,7 @@
+# `auri`
+## 0.7.5
+### Patch changes
+- Paaaaaatch :D
 # auri
 
 ## 0.7.4
