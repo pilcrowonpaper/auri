@@ -1,25 +1,36 @@
 import fs from "fs/promises";
 import { execute } from "../utils/execute.js";
+import { createRelease } from "../utils/github.js";
+import { parsePackageJSON } from "../utils/package.js";
 
-export async function publish() {
-	const packageJSON = await fs.readFile("package.json");
-	const parsedPackageJSON: object = JSON.parse(packageJSON.toString());
-	if (!("name" in parsedPackageJSON && typeof parsedPackageJSON.name === "string")) {
-		throw new Error('package.json missing field "name"');
-	}
-	if (!("version" in parsedPackageJSON && typeof parsedPackageJSON.version === "string")) {
-		throw new Error('package.json missing field "version"');
-	}
+export async function publish(branch: string) {
+	const packageMeta = await parsePackageJSON();
 
-	const published = await isPublished(parsedPackageJSON.name, parsedPackageJSON.version);
+	const published = await isPublished(packageMeta.name, packageMeta.version);
 	if (published) {
 		return;
 	}
 
-	if (parsedPackageJSON.version.includes(".next-")) {
-		execute("npm run build && npm publish --access public --tag next");
+	if (packageMeta.version.includes(".next-")) {
+		execute("npm install && npm run build && npm publish --access public --tag next");
+		const body = await getLatestChangelogBody();
+		await createRelease(packageMeta.repository, branch, packageMeta.version, {
+			body,
+			prerelease: true
+		});
 	} else {
-		execute("npm run build && npm publish --access public");
+		execute("npm install && npm run build && npm publish --access public");
+		const body = await getLatestChangelogBody();
+		if (branch === "main") {
+			await createRelease(packageMeta.repository, branch, packageMeta.version, {
+				body
+			});
+		} else {
+			await createRelease(packageMeta.repository, branch, packageMeta.version, {
+				body,
+				latest: false
+			});
+		}
 	}
 }
 
@@ -37,4 +48,23 @@ async function isPublished(name: string, version: string) {
 
 interface Registry {
 	time: Record<string, string>;
+}
+
+async function getLatestChangelogBody() {
+	const changelogFile = await fs.open("CHANGELOG.md");
+	let content = "";
+	let open = false;
+	for await (const line of changelogFile.readLines()) {
+		if (line.startsWith("## ")) {
+			if (open) {
+				break;
+			} else {
+				open = true;
+			}
+		} else if (open) {
+			content += line + "\n";
+		}
+	}
+	await changelogFile.close();
+	return content;
 }
