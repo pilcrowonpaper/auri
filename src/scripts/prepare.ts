@@ -484,4 +484,5 @@ async function commitChanges(branch: string) {
 	execute("git add .");
 	execute('git commit -m "update release"');
 	execute("git push -f -u origin HEAD");
+	execute(`git checkout -b ${branch}`);
 }
