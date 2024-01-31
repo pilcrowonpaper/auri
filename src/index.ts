@@ -31,7 +31,11 @@ if (args[0] === "prepare") {
 }
 
 if (args[0] === "publish") {
-	await publish();
+	const branch = args.at(1) ?? null;
+	if (branch === null) {
+		throw new Error("Missing arguments");
+	}
+	await publish(branch);
 }
 
 process.exit();

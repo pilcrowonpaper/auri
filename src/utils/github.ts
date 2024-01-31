@@ -268,3 +268,38 @@ interface GitHubCommitBody {
 interface Commit {
 	sha: string;
 }
+
+export async function createRelease(
+	repository: Repository,
+	branch: string,
+	version: string,
+	options?: {
+		body?: string;
+		latest?: boolean;
+        prerelease?: boolean
+	}
+): Promise<void> {
+	const token = env("AURI_GITHUB_TOKEN");
+	const body = JSON.stringify({
+		tag_name: `v${version}`,
+		target_commitish: branch,
+		name: `v${version}`,
+		body: options?.body,
+		make_latest: options?.latest ?? true,
+        prerelease: options?.prerelease
+	});
+	const response = await fetch(
+		`https://api.github.com/repos/${repository.owner}/${repository.name}/commits`,
+		{
+			method: "POST",
+			body,
+			headers: {
+				Authorization: `Bearer ${token}`,
+				Accept: "application/json"
+			}
+		}
+	);
+	if (!response.ok) {
+		throw new Error("Failed to create GitHub release");
+	}
+}

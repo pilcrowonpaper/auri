@@ -1,0 +1,1 @@
+Breaking: Auri generates GitHub releases on publish
