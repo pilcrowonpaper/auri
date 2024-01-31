@@ -1,5 +1,11 @@
 # auri
 
+## 0.9.2
+
+### Patch changes
+
+- Fix changelog format ([#77](https://github.com/pilcrowOnPaper/auri/pull/77))
+
 ## 0.9.1
 
 ### Patch changes
