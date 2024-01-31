@@ -1,1 +1,0 @@
-Breaking: Generate GitHub releases on publish
