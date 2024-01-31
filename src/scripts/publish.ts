@@ -2,7 +2,6 @@ import fs from "fs/promises";
 import { execute } from "../utils/execute.js";
 import { createRelease } from "../utils/github.js";
 import { parsePackageJSON } from "../utils/package.js";
-import { parseVersion } from "../utils/version.js";
 
 export async function publish(branch: string) {
 	const packageMeta = await parsePackageJSON();
