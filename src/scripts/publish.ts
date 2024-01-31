@@ -12,14 +12,14 @@ export async function publish(branch: string) {
 	}
 
 	if (packageMeta.version.includes(".next-")) {
-		execute("npm run build && npm publish --access public --tag next");
+		execute("npm install && npm run build && npm publish --access public --tag next");
 		const body = await getLatestChangelogBody();
 		await createRelease(packageMeta.repository, branch, packageMeta.version, {
 			body,
 			prerelease: true
 		});
 	} else {
-		execute("npm run build && npm publish --access public");
+		execute("npm install && npm run build && npm publish --access public");
 		const body = await getLatestChangelogBody();
 		if (branch === "main") {
 			await createRelease(packageMeta.repository, branch, packageMeta.version, {
