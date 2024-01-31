@@ -9,6 +9,8 @@ jobs:
   publish:
     name: Publish
     runs-on: ubuntu-latest
+    outputs:
+      changesets: ${{steps.check-changesets.outputs.changesets}}
     steps:
       - name: Setup actions
         uses: actions/checkout@v3
