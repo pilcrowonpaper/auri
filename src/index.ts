@@ -20,6 +20,7 @@ if (args[0] === "add") {
 		throw new Error("Invalid argument");
 	}
 	await addChangeset(type);
+	process.exit()
 }
 
 if (args[0] === "prepare") {
@@ -28,6 +29,7 @@ if (args[0] === "prepare") {
 		throw new Error("Missing arguments");
 	}
 	await prepareRelease(branch);
+	process.exit()
 }
 
 if (args[0] === "publish") {
@@ -36,6 +38,7 @@ if (args[0] === "publish") {
 		throw new Error("Missing arguments");
 	}
 	await publish(branch);
+	process.exit()
 }
 
-process.exit();
+throw new Error(`Unknown command: ${args[0]}`);
