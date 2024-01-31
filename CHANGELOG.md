@@ -1,5 +1,11 @@
 # auri
 
+## 0.9.5
+
+### Patch changes
+
+- Test update ([#85](https://github.com/pilcrowOnPaper/auri/pull/85))
+
 ## 0.9.4
 
 ### Patch changes
