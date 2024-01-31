@@ -7,7 +7,6 @@
 		"moduleResolution": "node",
 		"target": "es2022",
 		"allowSyntheticDefaultImports": true,
-		"declaration": true,
 		"outDir": "./dist",
 		"strict": true
 	},

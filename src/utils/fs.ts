@@ -1,15 +1,19 @@
 import fs from "fs/promises";
 
 export async function dirExists(path: string): Promise<boolean> {
-	return await fs
-		.stat(path)
-		.then((stat) => stat.isDirectory())
-		.catch(() => false);
+	try {
+		const stat = await fs.stat(path);
+		return stat.isDirectory();
+	} catch {
+		return false;
+	}
 }
 
 export async function fileExists(path: string): Promise<boolean> {
-	return await fs
-		.stat(path)
-		.then((stat) => stat.isFile())
-		.catch(() => false);
+	try {
+		const stat = await fs.stat(path);
+		return stat.isFile();
+	} catch {
+		return false;
+	}
 }

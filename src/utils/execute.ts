@@ -18,16 +18,3 @@ export const execute = (
 		throw new Error("An unknown error occurred");
 	}
 };
-
-export const pnpm = (
-	command: string,
-	options?: {
-		cwd?: string;
-	}
-) => {
-	execute(["pnpm", command].join(" "), options);
-};
-
-export const exit = () => {
-	process.exitCode = 0;
-};
