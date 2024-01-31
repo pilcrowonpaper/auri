@@ -2,6 +2,7 @@ import fs from "fs/promises";
 import { execute } from "../utils/execute.js";
 import { createRelease } from "../utils/github.js";
 import { parsePackageJSON } from "../utils/package.js";
+import { parseVersion } from "../utils/version.js";
 
 export async function publish(branch: string) {
 	const packageMeta = await parsePackageJSON();
@@ -20,14 +21,19 @@ export async function publish(branch: string) {
 			body,
 			prerelease: true
 		});
-	} else {
+	} else if (branch === "main" || branch === "master") {
 		execute("npm install && npm run build && npm publish --access public");
 		const body = await getLatestChangelogBody();
-		if (branch === "main") {
-			await createRelease(packageMeta.repository, branch, packageMeta.version, {
-				body
-			});
-		} else {
+		await createRelease(packageMeta.repository, branch, packageMeta.version, {
+			body
+		});
+	} else if (branch.startsWith("v")) {
+		const majorVersion = Number(branch.replace("v", ""));
+		if (!isNaN(majorVersion) && Math.trunc(majorVersion) === majorVersion) {
+			execute(
+				`npm install && npm run build && npm publish --access public --tag v${majorVersion}-latest`
+			);
+			const body = await getLatestChangelogBody();
 			await createRelease(packageMeta.repository, branch, packageMeta.version, {
 				body,
 				latest: false
