@@ -1,5 +1,13 @@
 # `auri`
 
+## 0.8.2
+
+### Patch changes
+
+- Add PR numbers to changelogs ([#68](https://github.com/pilcrowOnPaper/auri/pull/68))
+- Fix formatting
+- Fix Git bug ([#69](https://github.com/pilcrowOnPaper/auri/pull/69))
+
 ## 0.8.1
 
 ### Patch changes
