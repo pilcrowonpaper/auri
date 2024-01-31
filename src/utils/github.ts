@@ -139,3 +139,76 @@ function safeParseURL(url: string): URL | null {
 		return null;
 	}
 }
+
+export async function getPullRequestFromFile(
+	repository: Repository,
+	branch: string,
+	path: string
+): Promise<PullRequest | null> {
+	const commit = await getLatestFileCommit(repository, branch, path);
+	if (!commit) {
+		return null;
+	}
+	const token = env("AURI_GITHUB_TOKEN");
+	const url = new URL(
+		`https://api.github.com/repos/${repository.owner}/${repository.name}/commits/${commit.sha}/pulls`
+	);
+	const response = await fetch(url, {
+		headers: {
+			Authorization: `Bearer ${token}`,
+			Accept: "application/json"
+		}
+	});
+	if (!response.ok) {
+		throw new Error("Failed to fetch data from GitHub");
+	}
+	const existingPullRequests: GitHubPullRequestBody[] = await response.json();
+	const githubPullRequest = existingPullRequests.at(0) ?? null;
+	if (!githubPullRequest) {
+		return null;
+	}
+	const pullRequest: PullRequest = {
+		number: githubPullRequest.number,
+		userId: githubPullRequest.user.id
+	};
+	return pullRequest;
+}
+
+async function getLatestFileCommit(
+	repository: Repository,
+	branch: string,
+	path: string
+): Promise<Commit | null> {
+	const token = env("AURI_GITHUB_TOKEN");
+	const url = new URL(
+		`https://api.github.com/repos/${repository.owner}/${repository.name}/commits`
+	);
+	url.searchParams.set("sha", branch);
+	url.searchParams.set("path", path);
+	const response = await fetch(url, {
+		headers: {
+			Authorization: `Bearer ${token}`,
+			Accept: "application/json"
+		}
+	});
+	if (!response.ok) {
+		throw new Error("Failed to fetch data from GitHub");
+	}
+	const githubCommits: GitHubCommitBody[] = await response.json();
+	const githubCommit = githubCommits.at(0) ?? null;
+	if (!githubCommit) {
+		return null;
+	}
+	const commit: Commit = {
+		sha: githubCommit.sha
+	};
+	return commit;
+}
+
+interface GitHubCommitBody {
+	sha: string;
+}
+
+interface Commit {
+	sha: string;
+}
