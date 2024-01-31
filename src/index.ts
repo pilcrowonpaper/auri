@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { publish } from "./scripts/publish.js";
 import { prepareRelease } from "./scripts/prepare.js";
 import { addChangeset } from "./scripts/add.js";
