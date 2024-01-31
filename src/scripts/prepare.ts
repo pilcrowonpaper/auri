@@ -445,7 +445,7 @@ interface PackageMeta {
 async function getChangesets(repository: Repository, branch: string): Promise<Changeset[]> {
 	const changesetDirExists = await dirExists(".changesets");
 	if (!changesetDirExists) {
-		throw new Error('Directory ".changesets" does not exist');
+		return [];
 	}
 	const changesetFilenames = await fs.readdir(".changesets");
 	const changesetPromises: Promise<Changeset>[] = [];
