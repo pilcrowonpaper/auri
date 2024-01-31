@@ -92,7 +92,10 @@ async function prepareCurrentVersion(packageMeta: PackageMeta): Promise<void> {
 			version: nextVersion
 		});
 		await fs.writeFile("package.json", JSON.stringify(parsedPackageJSON));
-
+		await fs.rm(".changesets", {
+			recursive: true,
+			force: true
+		});
 		commitChanges("main");
 
 		let releaseRequestBody = "";
@@ -175,7 +178,10 @@ async function prepareCurrentVersion(packageMeta: PackageMeta): Promise<void> {
 		version: nextVersion
 	});
 	await fs.writeFile("package.json", JSON.stringify(parsedPackageJSON));
-
+	await fs.rm(".changesets", {
+		recursive: true,
+		force: true
+	});
 	commitChanges("main");
 
 	let releaseRequestBody = "";
@@ -292,7 +298,10 @@ async function prepareMajorVersion(majorVersion: number, packageMeta: PackageMet
 		version: nextVersion
 	});
 	await fs.writeFile("package.json", JSON.stringify(parsedPackageJSON));
-
+	await fs.rm(".changesets", {
+		recursive: true,
+		force: true
+	});
 	commitChanges(`v${majorVersion}`);
 
 	let releaseRequestBody = "";
@@ -401,7 +410,10 @@ async function prepareNextMajorVersion(
 		version: nextVersion
 	});
 	await fs.writeFile("package.json", JSON.stringify(parsedPackageJSON));
-
+	await fs.rm(".changesets", {
+		recursive: true,
+		force: true
+	});
 	commitChanges(`v${majorVersion}`);
 
 	let releaseRequestBody = "";
