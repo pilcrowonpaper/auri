@@ -276,7 +276,7 @@ export async function createRelease(
 	options?: {
 		body?: string;
 		latest?: boolean;
-        prerelease?: boolean
+		prerelease?: boolean;
 	}
 ): Promise<void> {
 	const token = env("AURI_GITHUB_TOKEN");
@@ -286,10 +286,10 @@ export async function createRelease(
 		name: `v${version}`,
 		body: options?.body,
 		make_latest: options?.latest ?? true,
-        prerelease: options?.prerelease
+		prerelease: options?.prerelease
 	});
 	const response = await fetch(
-		`https://api.github.com/repos/${repository.owner}/${repository.name}/commits`,
+		`https://api.github.com/repos/${repository.owner}/${repository.name}/releases`,
 		{
 			method: "POST",
 			body,
