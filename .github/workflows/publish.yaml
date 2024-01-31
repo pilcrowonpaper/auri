@@ -31,7 +31,7 @@ jobs:
             echo "changesets=0" >> "$GITHUB_OUTPUT"
           else
             echo "changesets=1" >> "$GITHUB_OUTPUT"
-          fi˝
+          fi
       - name: Publish docs
         if: steps.check-changesets.outputs.changesets == 0
         run: echo "Publish!"
