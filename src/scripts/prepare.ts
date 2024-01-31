@@ -90,7 +90,7 @@ async function prepareCurrentVersion(packageMeta: PackageMeta): Promise<void> {
 		execute("git add .");
 		execute('git commit -m "update release"');
 		execute("git push -f -u origin HEAD");
-		execute("npm exec prettier -w CHANGELOG.md package.json");
+		execute("npx prettier -w CHANGELOG.md package.json");
 
 		let releaseRequestBody = "";
 		for (const changeset of changesets) {
@@ -155,7 +155,7 @@ async function prepareCurrentVersion(packageMeta: PackageMeta): Promise<void> {
 	execute("git add .");
 	execute('git commit -m "update release"');
 	execute("git push -f -u origin HEAD");
-	execute("npm exec prettier -w CHANGELOG.md package.json");
+	execute("npx prettier -w CHANGELOG.md package.json");
 
 	let releaseRequestBody = "";
 	if (minorChangesets.length > 0) {
@@ -246,7 +246,7 @@ async function prepareMajorVersion(majorVersion: number, packageMeta: PackageMet
 	execute("git add .");
 	execute('git commit -m "update release"');
 	execute("git push -f -u origin HEAD");
-	execute("npm exec prettier -w CHANGELOG.md package.json");
+	execute("npx prettier -w CHANGELOG.md package.json");
 
 	let releaseRequestBody = "";
 	if (minorChangesets.length > 0) {
@@ -329,7 +329,7 @@ async function prepareNextMajorVersion(
 	execute("git add .");
 	execute('git commit -m "update release"');
 	execute("git push -f -u origin HEAD");
-	execute("npm exec prettier -w CHANGELOG.md package.json");
+	execute("npx prettier -w CHANGELOG.md package.json");
 
 	let releaseRequestBody = "";
 	for (const changeset of changesets) {
