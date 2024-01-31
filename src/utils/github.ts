@@ -174,6 +174,62 @@ export async function getPullRequestFromFile(
 	return pullRequest;
 }
 
+let gitUser: GitUser | null = null;
+
+export async function getGitUser(): Promise<GitUser> {
+	const token = env("AURI_GITHUB_TOKEN");
+	if (gitUser) {
+		return gitUser;
+	}
+	const userResponse = await fetch("https://api.github.com/user", {
+		headers: {
+			Authorization: `Bearer ${token}`,
+			Accept: "application/json"
+		}
+	});
+	if (!userResponse.ok) {
+		throw new Error("Failed to fetch data from GitHub");
+	}
+	const githubUser: GitHubUserBody = await userResponse.json();
+
+	const emailsResponse = await fetch("https://api.github.com/user/emails", {
+		headers: {
+			Authorization: `Bearer ${token}`,
+			Accept: "application/json"
+		}
+	});
+	if (!emailsResponse.ok) {
+		throw new Error("Failed to fetch data from GitHub");
+	}
+	const githubEmails: GitHubUserEmailBody[] = await emailsResponse.json();
+	for (const email of githubEmails) {
+		if (email.verified && email.primary) {
+			gitUser = {
+				email: email.email,
+				name: githubUser.login
+			};
+			return gitUser;
+		}
+	}
+	throw new Error("A verified email is required");
+}
+
+interface GitUser {
+	name: string;
+	email: string;
+}
+
+interface GitHubUserBody {
+	id: number;
+	login: string;
+}
+
+interface GitHubUserEmailBody {
+	email: string;
+	verified: boolean;
+	primary: boolean;
+}
+
 async function getLatestFileCommit(
 	repository: Repository,
 	branch: string,

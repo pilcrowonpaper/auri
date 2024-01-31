@@ -4,6 +4,7 @@ import { parseVersion } from "../utils/version.js";
 import { execute } from "../utils/execute.js";
 import {
 	createPullRequest,
+	getGitUser,
 	getPullRequestFromBranches,
 	getPullRequestFromFile,
 	parseRepositoryURL,
@@ -498,9 +499,10 @@ async function createReleaseRequest(
 	}
 }
 
-function commitChanges(branch: string) {
-	// execute(`git config --global user.name "${user.username}"`);
-	// execute(`git config --global user.email "${user.email}"`);
+async function commitChanges(branch: string) {
+	const user = await getGitUser();
+	execute(`git config --global user.name "${user.name}"`);
+	execute(`git config --global user.email "${user.email}"`);
 	execute(`git checkout -b ${branch}.auri`);
 	execute("git add .");
 	execute('git commit -m "update release"');
