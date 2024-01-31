@@ -1,5 +1,11 @@
 # `auri`
 
+## 0.9.1
+
+### Patch changes
+
+- Fix GitHub releases
+
 ## 0.9.0
 
 ### Minor changes
