@@ -38,4 +38,4 @@ if (args[0] === "publish") {
 	await publish(branch);
 }
 
-process.exit();
+throw new Error(`Unknown command: ${args[0]}`);
