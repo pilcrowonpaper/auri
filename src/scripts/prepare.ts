@@ -35,6 +35,8 @@ async function prepareCurrentVersion(packageMeta: PackageMeta): Promise<void> {
 		return;
 	}
 
+	await initGit();
+
 	const currentVersion = parseVersion(packageMeta.version);
 
 	if (currentVersion.next !== null) {
@@ -191,7 +193,7 @@ async function prepareCurrentVersion(packageMeta: PackageMeta): Promise<void> {
 async function prepareMajorVersion(majorVersion: number, packageMeta: PackageMeta): Promise<void> {
 	const currentVersion = parseVersion(packageMeta.version);
 	if (majorVersion !== currentVersion.major || currentVersion.next !== null) {
-		// stable => next release
+		// stable/next => next release
 		return await prepareNextMajorVersion(majorVersion, packageMeta);
 	}
 
@@ -206,6 +208,8 @@ async function prepareMajorVersion(majorVersion: number, packageMeta: PackageMet
 	if (changesets.length === 0) {
 		return;
 	}
+
+	await initGit();
 
 	const minorChangesets: Changeset[] = [];
 	const patchChangesets: Changeset[] = [];
@@ -323,6 +327,8 @@ async function prepareNextMajorVersion(
 	if (changesets.length === 0) {
 		return;
 	}
+
+	await initGit();
 
 	let nextVersion: string;
 	if (currentVersion.major === majorVersion && currentVersion.next !== null) {
@@ -479,11 +485,14 @@ async function createReleaseRequest(
 	}
 }
 
-async function commitChanges(branch: string) {
+async function initGit() {
 	const user = await getGitUser();
-	execute("npx prettier -w CHANGELOG.md package.json");
 	execute(`git config --global user.name "${user.name}"`);
 	execute(`git config --global user.email "${user.email}"`);
+}
+
+function commitChanges(branch: string) {
+	execute("npx prettier -w CHANGELOG.md package.json");
 	execute(`git checkout -b ${branch}.auri`);
 	execute("git add .");
 	execute('git commit -m "update release"');
