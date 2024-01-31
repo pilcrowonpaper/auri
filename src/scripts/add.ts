@@ -1,25 +1,21 @@
-import fs from "fs";
+import fs from "fs/promises";
 import path from "path";
-import { customAlphabet } from "nanoid";
 
-import { AURI_DIR } from "../shared/constant.js";
-import { error } from "../shared/error.js";
+import { dirExists } from "../utils/fs.js";
 
-export const addChangeset = async () => {
-	const ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz";
-	const generateChangesetId = customAlphabet(ALPHABET, 8);
-
-	if (!fs.existsSync(path.join(process.cwd(), AURI_DIR))) {
-		return error(`"${AURI_DIR}" directory does not exist`);
+export const addChangeset = async (type: "patch" | "minor" | "next") => {
+	const changesetsDirExists = await dirExists(path.join(process.cwd(), ".changesets"));
+	if (!changesetsDirExists) {
+		await fs.mkdir(path.join(process.cwd(), ".changesets"));
 	}
-
-	const changesetTemplate = `---
-package: "" # package name
-type: "" # "major", "minor", "patch"
----`;
-
-	fs.writeFileSync(
-		path.join(process.cwd(), AURI_DIR, `$${generateChangesetId()}.md`),
-		changesetTemplate
-	);
+	await fs.writeFile(path.join(process.cwd(), ".changesets", `${generateId(5)}.${type}.md`), "");
 };
+
+function generateId(length: number): string {
+	const alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
+	let result = "";
+	for (let i = 0; i < length; i++) {
+		result += alphabet[Math.floor(Math.random() * alphabet.length)];
+	}
+	return result;
+}
