@@ -25,7 +25,7 @@ jobs:
       - name: Prepare release
         run: npm run auri prepare ${{ github.ref_name }}
       - name: Publish package
-        run: npm run auri publish
+        run: npm run auri publish ${{ github.ref_name }}
       - name: Check if ".changesets" directory has files
         id: check-changesets
         run: |
