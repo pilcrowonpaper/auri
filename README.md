@@ -72,6 +72,20 @@ jobs:
         run: npm run auri publish ${{ github.ref_name }}
 ```
 
+### 3. Configure permissions
+
+Go to your repository's settings, and go to "Code and automation" > "Actions" > "General." Go to "Workflow permissions" and enable:
+
+- "Read and write permissions"
+- "Allow GitHub Actions to create and approve pull requests"
+
+If your GitHub workflow have `permissions` defined, make sure `content` is set to `write`:
+
+```yaml
+permissions:
+  contents: write
+```
+
 ## Instructions
 
 ### Basics
