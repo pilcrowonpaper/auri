@@ -501,11 +501,11 @@ async function createReleaseRequest(
 
 async function commitChanges(branch: string) {
 	const user = await getGitUser();
+	execute("npx prettier -w CHANGELOG.md package.json");
 	execute(`git config --global user.name "${user.name}"`);
 	execute(`git config --global user.email "${user.email}"`);
 	execute(`git checkout -b ${branch}.auri`);
 	execute("git add .");
 	execute('git commit -m "update release"');
 	execute("git push -f -u origin HEAD");
-	execute("npx prettier -w CHANGELOG.md package.json");
 }
