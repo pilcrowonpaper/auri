@@ -12,6 +12,7 @@ import {
 } from "../utils/github.js";
 
 import type { Repository } from "../utils/github.js";
+import { dirExists, fileExists } from "../utils/fs.js";
 
 export async function prepareRelease(branch: string): Promise<void> {
 	const packageJSON = await fs.readFile("package.json");
@@ -383,20 +384,6 @@ interface Changeset {
 	type: "patch" | "minor" | "next";
 	content: string;
 	id: string;
-}
-
-async function dirExists(path: string): Promise<boolean> {
-	return await fs
-		.stat(path)
-		.then((stat) => stat.isDirectory())
-		.catch(() => false);
-}
-
-async function fileExists(path: string): Promise<boolean> {
-	return await fs
-		.stat(path)
-		.then((stat) => stat.isFile())
-		.catch(() => false);
 }
 
 async function createReleaseRequest(

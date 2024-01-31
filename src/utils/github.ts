@@ -3,7 +3,7 @@ import { env } from "./env.js";
 export async function getPullRequestFromBranches(
 	repository: Repository,
 	head: string,
-    base: string
+	base: string
 ): Promise<PullRequest | null> {
 	const token = env("AURI_GITHUB_TOKEN");
 	const url = new URL(`https://api.github.com/repos/${repository.owner}/${repository.name}/pulls`);
@@ -25,7 +25,7 @@ export async function getPullRequestFromBranches(
 		return null;
 	}
 	const pullRequest: PullRequest = {
-		number: githubPullRequest.id,
+		number: githubPullRequest.number,
 		userId: githubPullRequest.user.id
 	};
 	return pullRequest;
@@ -61,7 +61,7 @@ export async function createPullRequest(
 	}
 	const githubPullRequest: GitHubPullRequestBody = await response.json();
 	const pullRequest: PullRequest = {
-		number: githubPullRequest.id,
+		number: githubPullRequest.number,
 		userId: githubPullRequest.user.id
 	};
 	return pullRequest;
@@ -102,7 +102,7 @@ export interface PullRequest {
 }
 
 interface GitHubPullRequestBody {
-	id: number;
+	number: number;
 	user: GitHubUserBody;
 }
 
