@@ -1,5 +1,11 @@
 # auri
 
+## 1.0.1
+
+### Patch changes
+
+- Release legacy packages with custom tags
+
 ## 1.0.0
 
 - Fix various bugs
