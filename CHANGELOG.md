@@ -1,5 +1,11 @@
 # `auri`
 
+## 0.9.1
+
+### Patch changes
+
+- Fix GitHub release ([#75](https://github.com/pilcrowOnPaper/auri/pull/75))
+
 ## 0.9.0
 
 ### Minor changes
