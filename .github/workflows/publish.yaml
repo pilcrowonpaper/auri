@@ -33,5 +33,5 @@ jobs:
             echo "changesets=1" >> "$GITHUB_OUTPUT"
           fi
       - name: Publish docs
-        if: steps.check-changesets.outputs.changesets == 0 && github.ref_name == "main"
+        if: steps.check-changesets.outputs.changesets == 0 && github.ref_name == 'main'
         run: echo "Publish!"
