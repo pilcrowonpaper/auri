@@ -9,8 +9,6 @@ jobs:
   publish:
     name: Publish
     runs-on: ubuntu-latest
-    outputs:
-      - auri_publish_result: ${{ steps.auri-publish.outputs.test }}
     steps:
       - name: Setup actions
         uses: actions/checkout@v3
