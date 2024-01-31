@@ -12,6 +12,6 @@ Run commands:
 
 ```
 npx auri
-pnpm exec auri
+pnpm auri
 yarn auri
 ```
