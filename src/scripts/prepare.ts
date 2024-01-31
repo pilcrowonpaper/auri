@@ -52,7 +52,7 @@ async function prepareCurrentVersion(packageMeta: PackageMeta): Promise<void> {
 				changelogBody += `- ${changeset.content.trim()}\n`;
 			}
 		}
-		const changelogTitle = `# \`${packageMeta.name}\`\n`;
+		const changelogTitle = `# ${packageMeta.name}\n`;
 		const changelog = changelogTitle + changelogBody;
 		await fs.writeFile("CHANGELOG.md", changelog);
 
@@ -105,7 +105,7 @@ async function prepareCurrentVersion(packageMeta: PackageMeta): Promise<void> {
 	}
 
 	const changelogExists = await fileExists("CHANGELOG.md");
-	const changelogTitle = `# \`${packageMeta.name}\`\n`;
+	const changelogTitle = `# ${packageMeta.name}\n`;
 	if (!changelogExists) {
 		await fs.writeFile("CHANGELOG.md", changelogTitle);
 	}
@@ -225,7 +225,7 @@ async function prepareMajorVersion(majorVersion: number, packageMeta: PackageMet
 	}
 
 	const changelogExists = await fileExists("CHANGELOG.md");
-	const changelogTitle = `# \`${packageMeta.name}\`\n`;
+	const changelogTitle = `# ${packageMeta.name}\n`;
 	if (!changelogExists) {
 		await fs.writeFile("CHANGELOG.md", changelogTitle);
 	}
@@ -345,12 +345,12 @@ async function prepareNextMajorVersion(
 				changelogBody += `- ${changeset.content.trim()}\n`;
 			}
 		}
-		const changelogTitle = `# \`${packageMeta.name}\`\n`;
+		const changelogTitle = `# ${packageMeta.name}\n`;
 		changelog = changelogTitle + changelogBody;
 		await fs.writeFile("CHANGELOG.md", changelog);
 	} else {
 		const changelogExists = await fileExists("CHANGELOG.md");
-		const changelogTitle = `# \`${packageMeta.name}\`\n`;
+		const changelogTitle = `# ${packageMeta.name}\n`;
 		if (!changelogExists) {
 			await fs.writeFile("CHANGELOG.md", changelogTitle);
 		}
