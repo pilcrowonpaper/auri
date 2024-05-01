@@ -17,7 +17,7 @@ if (args[0] === "add") {
 	if (type === null) {
 		throw new Error("Missing arguments");
 	}
-	if (type !== "patch" && type !== "minor" && type !== "next") {
+	if (type !== "patch" && type !== "minor" && type !== "major") {
 		throw new Error("Invalid argument");
 	}
 	await addChangeset(type);

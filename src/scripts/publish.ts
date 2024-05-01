@@ -6,22 +6,22 @@ import { parsePackageJSON } from "../utils/package.js";
 export async function publish(branch: string) {
 	const packageMeta = await parsePackageJSON();
 
-	const published = await isPublished(packageMeta.name, packageMeta.version);
+	const published = await isPublished(packageMeta.name, packageMeta.version.value);
 	if (published) {
 		return;
 	}
 
-	if (packageMeta.version.includes("-next.")) {
+	if (packageMeta.version.next !== null) {
 		execute("npm install && npm run build && npm publish --access public --tag next");
 		const body = await getLatestChangelogBody();
-		await createRelease(packageMeta.repository, branch, packageMeta.version, {
+		await createRelease(packageMeta.repository, branch, packageMeta.version.value, {
 			body,
 			prerelease: true
 		});
 	} else if (branch === "main" || branch === "master") {
 		execute("npm install && npm run build && npm publish --access public");
 		const body = await getLatestChangelogBody();
-		await createRelease(packageMeta.repository, branch, packageMeta.version, {
+		await createRelease(packageMeta.repository, branch, packageMeta.version.value, {
 			body
 		});
 	} else if (branch.startsWith("v")) {
@@ -31,7 +31,7 @@ export async function publish(branch: string) {
 				`npm install && npm run build && npm publish --access public --tag v${majorVersion}-latest`
 			);
 			const body = await getLatestChangelogBody();
-			await createRelease(packageMeta.repository, branch, packageMeta.version, {
+			await createRelease(packageMeta.repository, branch, packageMeta.version.value, {
 				body,
 				latest: false
 			});

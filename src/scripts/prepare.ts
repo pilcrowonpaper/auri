@@ -1,6 +1,5 @@
 import fs from "fs/promises";
 import path from "path";
-import { parseVersion } from "../utils/version.js";
 import { execute } from "../utils/execute.js";
 import {
 	createPullRequest,
@@ -9,7 +8,7 @@ import {
 	getPullRequestFromFile,
 	updatePullRequest
 } from "../utils/github.js";
-import { dirExists, fileExists } from "../utils/fs.js";
+import { dirExists } from "../utils/fs.js";
 import { parsePackageJSON } from "../utils/package.js";
 
 import type { Repository } from "../utils/github.js";
@@ -18,204 +17,46 @@ import type { PackageMeta } from "../utils/package.js";
 export async function prepareRelease(branch: string): Promise<void> {
 	const packageMeta = await parsePackageJSON();
 
-	if (branch === "main" || branch === "master") {
-		await prepareCurrentVersion(packageMeta);
-	}
-	if (branch.startsWith("v")) {
-		const majorVersion = Number(branch.replace("v", ""));
-		if (!isNaN(majorVersion) && Math.trunc(majorVersion) === majorVersion) {
-			await prepareMajorVersion(majorVersion, packageMeta);
-		}
-	}
-}
-
-async function prepareCurrentVersion(packageMeta: PackageMeta): Promise<void> {
 	const changesets = await getChangesets(packageMeta.repository, "main");
 	if (changesets.length === 0) {
 		return;
 	}
 
-	await initGit();
-
-	const currentVersion = parseVersion(packageMeta.version);
-
-	if (currentVersion.next !== null) {
-		// next => stable release
-		const nextVersion = [currentVersion.major, 0, 0].join(".");
-		let changelogBody = `## ${nextVersion}\n`;
-		for (const changeset of changesets) {
-			if (changeset.pullRequestNumber !== null) {
-				changelogBody += `- ${changeset.content.trim()} ([#${
-					changeset.pullRequestNumber
-				}](https://github.com/${packageMeta.repository.owner}/${packageMeta.repository.name}/pull/${
-					changeset.pullRequestNumber
-				}))\n`;
-			} else {
-				changelogBody += `- ${changeset.content.trim()}\n`;
-			}
+	if (branch === "main" || branch === "master") {
+		if (packageMeta.version.next === null) {
+			await prepareMinorOrPatchRelease(changesets, packageMeta);
+		} else {
+			await preparePrereleaseToStableRelease(changesets, packageMeta);
 		}
-		const changelogTitle = `# ${packageMeta.name}\n`;
-		const changelog = changelogTitle + changelogBody;
-		await fs.writeFile("CHANGELOG.md", changelog);
-
-		const packageJSON = await fs.readFile("package.json");
-		const parsedPackageJSON: object = JSON.parse(packageJSON.toString());
-		Object.assign(parsedPackageJSON, {
-			version: nextVersion
-		});
-		await fs.writeFile("package.json", JSON.stringify(parsedPackageJSON));
-		await fs.rm(".changesets", {
-			recursive: true,
-			force: true
-		});
-		commitChanges("main");
-		execute("git checkout main"); // reset branch
-
-		let releaseRequestBody = "";
-		for (const changeset of changesets) {
-			if (changeset.pullRequestNumber !== null) {
-				releaseRequestBody += `- ${changeset.content.trim()} ([#${
-					changeset.pullRequestNumber
-				}](https://github.com/${packageMeta.repository.owner}/${packageMeta.repository.name}/pull/${
-					changeset.pullRequestNumber
-				}))\n`;
-			} else {
-				releaseRequestBody += `- ${changeset.content.trim()}\n`;
-			}
-		}
-		await createReleaseRequest(packageMeta.repository, "main", nextVersion, releaseRequestBody);
 		return;
 	}
-
-	// stable => stable release
-	const minorChangesets: Changeset[] = [];
-	const patchChangesets: Changeset[] = [];
-	for (const changeset of changesets) {
-		if (changeset.type === "next") {
-			throw new Error('Stable versions must not use "next" changesets');
-		} else if (changeset.type === "minor") {
-			minorChangesets.push(changeset);
-		} else if (changeset.type === "patch") {
-			patchChangesets.push(changeset);
+	if (branch.startsWith("v")) {
+		const branchMajorVersion = Number(branch.replace("v", ""));
+		if (isNaN(branchMajorVersion) || Math.trunc(branchMajorVersion) !== branchMajorVersion) {
+			return;
 		}
-	}
-
-	let nextVersion: string;
-	if (minorChangesets.length > 0) {
-		nextVersion = [currentVersion.major, currentVersion.minor + 1, 0].join(".");
-	} else {
-		nextVersion = [currentVersion.major, currentVersion.minor, currentVersion.patch + 1].join(".");
-	}
-
-	const changelogExists = await fileExists("CHANGELOG.md");
-	const changelogTitle = `# ${packageMeta.name}\n`;
-	if (!changelogExists) {
-		await fs.writeFile("CHANGELOG.md", changelogTitle);
-	}
-	let changelog = await fs.readFile("CHANGELOG.md").then((d) => d.toString());
-	let changelogBody = `## ${nextVersion}\n`;
-	if (minorChangesets.length > 0) {
-		changelogBody += "### Minor changes\n";
-		for (const changeset of minorChangesets) {
-			if (changeset.pullRequestNumber !== null) {
-				changelogBody += `- ${changeset.content.trim()} ([#${
-					changeset.pullRequestNumber
-				}](https://github.com/${packageMeta.repository.owner}/${packageMeta.repository.name}/pull/${
-					changeset.pullRequestNumber
-				}))\n`;
-			} else {
-				changelogBody += `- ${changeset.content.trim()}\n`;
-			}
+		if (branchMajorVersion !== packageMeta.version.major) {
+			await prepareNewPrerelease(branchMajorVersion, changesets, packageMeta);
+		} else if (packageMeta.version.next === null) {
+			await prepareMinorOrPatchRelease(changesets, packageMeta);
+		} else {
+			await prepareNextPrerelease(changesets, packageMeta);
 		}
+		return;
 	}
-	if (patchChangesets.length > 0) {
-		changelogBody += "### Patch changes\n";
-		for (const changeset of patchChangesets) {
-			if (changeset.pullRequestNumber !== null) {
-				changelogBody += `- ${changeset.content.trim()} ([#${
-					changeset.pullRequestNumber
-				}](https://github.com/${packageMeta.repository.owner}/${packageMeta.repository.name}/pull/${
-					changeset.pullRequestNumber
-				}))\n`;
-			} else {
-				changelogBody += `- ${changeset.content.trim()}\n`;
-			}
-		}
-	}
-	changelog = changelogTitle + changelogBody + changelog.replace(changelogTitle, "");
-	await fs.writeFile("CHANGELOG.md", changelog);
-
-	const packageJSON = await fs.readFile("package.json");
-	const parsedPackageJSON: object = JSON.parse(packageJSON.toString());
-	Object.assign(parsedPackageJSON, {
-		version: nextVersion
-	});
-	await fs.writeFile("package.json", JSON.stringify(parsedPackageJSON));
-	await fs.rm(".changesets", {
-		recursive: true,
-		force: true
-	});
-	commitChanges("main");
-	execute("git checkout main"); // reset branch
-
-	let releaseRequestBody = "";
-	if (minorChangesets.length > 0) {
-		releaseRequestBody += "## Minor changes\n";
-		for (const changeset of minorChangesets) {
-			if (changeset.pullRequestNumber !== null) {
-				releaseRequestBody += `- ${changeset.content.trim()} ([#${
-					changeset.pullRequestNumber
-				}](https://github.com/${packageMeta.repository.owner}/${packageMeta.repository.name}/pull/${
-					changeset.pullRequestNumber
-				}))\n`;
-			} else {
-				releaseRequestBody += `- ${changeset.content.trim()}\n`;
-			}
-		}
-	}
-	if (patchChangesets.length > 0) {
-		releaseRequestBody += "## Patch changes\n";
-		for (const changeset of patchChangesets) {
-			if (changeset.pullRequestNumber !== null) {
-				releaseRequestBody += `- ${changeset.content.trim()} ([#${
-					changeset.pullRequestNumber
-				}](https://github.com/${packageMeta.repository.owner}/${packageMeta.repository.name}/pull/${
-					changeset.pullRequestNumber
-				}))\n`;
-			} else {
-				releaseRequestBody += `- ${changeset.content.trim()}\n`;
-			}
-		}
-	}
-	await createReleaseRequest(packageMeta.repository, "main", nextVersion, releaseRequestBody);
 }
 
-async function prepareMajorVersion(majorVersion: number, packageMeta: PackageMeta): Promise<void> {
-	const currentVersion = parseVersion(packageMeta.version);
-	if (majorVersion !== currentVersion.major || currentVersion.next !== null) {
-		// stable/next => next release
-		return await prepareNextMajorVersion(majorVersion, packageMeta);
-	}
-
-	// stable => stable release
-	if (currentVersion.next !== null) {
-		throw new Error('Main branch package version must not be "next"');
-	}
-	if (majorVersion !== currentVersion.major) {
-		throw new Error("Invalid branch version");
-	}
-	const changesets = await getChangesets(packageMeta.repository, `v${majorVersion}`);
-	if (changesets.length === 0) {
-		return;
-	}
-
-	await initGit();
+async function prepareMinorOrPatchRelease(
+	changesets: Changeset[],
+	packageMeta: PackageMeta
+): Promise<void> {
+	await initializeGit();
 
 	const minorChangesets: Changeset[] = [];
 	const patchChangesets: Changeset[] = [];
 	for (const changeset of changesets) {
-		if (changeset.type === "next") {
-			throw new Error('Stable versions must not use "next" changesets');
+		if (changeset.type === "major") {
+			throw new Error('Stable versions must not use "major" changesets');
 		} else if (changeset.type === "minor") {
 			minorChangesets.push(changeset);
 		} else if (changeset.type === "patch") {
@@ -225,48 +66,23 @@ async function prepareMajorVersion(majorVersion: number, packageMeta: PackageMet
 
 	let nextVersion: string;
 	if (minorChangesets.length > 0) {
-		nextVersion = [currentVersion.major, currentVersion.minor + 1, 0].join(".");
+		nextVersion = [packageMeta.version.major, packageMeta.version.minor + 1, 0].join(".");
 	} else {
-		nextVersion = [currentVersion.major, currentVersion.minor, currentVersion.patch + 1].join(".");
+		nextVersion = [
+			packageMeta.version.major,
+			packageMeta.version.minor,
+			packageMeta.version.patch + 1
+		].join(".");
 	}
 
-	const changelogExists = await fileExists("CHANGELOG.md");
 	const changelogTitle = `# ${packageMeta.name}\n`;
-	if (!changelogExists) {
-		await fs.writeFile("CHANGELOG.md", changelogTitle);
-	}
-	let changelog = await fs.readFile("CHANGELOG.md").then((d) => d.toString());
-	let changelogBody = `## ${nextVersion}\n`;
-	if (minorChangesets.length > 0) {
-		changelogBody += "### Minor changes\n";
-		for (const changeset of minorChangesets) {
-			if (changeset.pullRequestNumber !== null) {
-				changelogBody += `- ${changeset.content.trim()} ([#${
-					changeset.pullRequestNumber
-				}](https://github.com/${packageMeta.repository.owner}/${packageMeta.repository.name}/pull/${
-					changeset.pullRequestNumber
-				}))\n`;
-			} else {
-				changelogBody += `- ${changeset.content.trim()}\n`;
-			}
-		}
-	}
-	if (patchChangesets.length > 0) {
-		changelogBody += "### Patch changes\n";
-		for (const changeset of patchChangesets) {
-			if (changeset.pullRequestNumber !== null) {
-				changelogBody += `- ${changeset.content.trim()} ([#${
-					changeset.pullRequestNumber
-				}](https://github.com/${packageMeta.repository.owner}/${packageMeta.repository.name}/pull/${
-					changeset.pullRequestNumber
-				}))\n`;
-			} else {
-				changelogBody += `- ${changeset.content.trim()}\n`;
-			}
-		}
-	}
-	changelog = changelogTitle + changelogBody + changelog.replace(changelogTitle, "");
-	await fs.writeFile("CHANGELOG.md", changelog);
+	const changelogContentBuffer = await fs.readFile("CHANGELOG.md");
+	let changelogContent = changelogContentBuffer.toString();
+	const changelogBody = generateVersionChangelog([], minorChangesets, patchChangesets, packageMeta);
+	const changelogBodyWithVersionTitle = `## ${nextVersion}\n` + changelogBody;
+	changelogContent =
+		changelogTitle + changelogBodyWithVersionTitle + changelogContent.replace(changelogTitle, "");
+	await fs.writeFile("CHANGELOG.md", changelogContent);
 
 	const packageJSON = await fs.readFile("package.json");
 	const parsedPackageJSON: object = JSON.parse(packageJSON.toString());
@@ -278,110 +94,155 @@ async function prepareMajorVersion(majorVersion: number, packageMeta: PackageMet
 		recursive: true,
 		force: true
 	});
-	commitChanges(`v${majorVersion}`);
-	execute(`git checkout v${majorVersion}`); // reset branch
+	execute("npx prettier -w package.json CHANGELOG.md")
+	commitChanges("main.auri");
+	execute("git checkout main"); // reset branch
 
-	let releaseRequestBody = "";
-	if (minorChangesets.length > 0) {
-		releaseRequestBody += "## Minor changes\n";
-		for (const changeset of minorChangesets) {
-			if (changeset.pullRequestNumber !== null) {
-				releaseRequestBody += `- ${changeset.content.trim()} ([#${
-					changeset.pullRequestNumber
-				}](https://github.com/${packageMeta.repository.owner}/${packageMeta.repository.name}/pull/${
-					changeset.pullRequestNumber
-				}))\n`;
-			} else {
-				releaseRequestBody += `- ${changeset.content.trim()}\n`;
-			}
+	await createReleaseRequest(packageMeta.repository, "main", nextVersion, changelogBody);
+}
+
+async function preparePrereleaseToStableRelease(
+	changesets: Changeset[],
+	packageMeta: PackageMeta
+): Promise<void> {
+	await initializeGit();
+
+	const majorChangesets: Changeset[] = [];
+	const minorChangesets: Changeset[] = [];
+	const patchChangesets: Changeset[] = [];
+	for (const changeset of changesets) {
+		if (changeset.type === "major") {
+			majorChangesets.push(changeset);
+		} else if (changeset.type === "minor") {
+			minorChangesets.push(changeset);
+		} else if (changeset.type === "patch") {
+			patchChangesets.push(changeset);
 		}
 	}
-	if (patchChangesets.length > 0) {
-		releaseRequestBody += "## Patch changes\n";
-		for (const changeset of patchChangesets) {
-			if (changeset.pullRequestNumber !== null) {
-				releaseRequestBody += `- ${changeset.content.trim()} ([#${
-					changeset.pullRequestNumber
-				}](https://github.com/${packageMeta.repository.owner}/${packageMeta.repository.name}/pull/${
-					changeset.pullRequestNumber
-				}))\n`;
-			} else {
-				releaseRequestBody += `- ${changeset.content.trim()}\n`;
-			}
+
+	const nextVersion = [packageMeta.version.major, 0, 0].join(".");
+
+	const changelogBody = generateVersionChangelog(
+		majorChangesets,
+		minorChangesets,
+		patchChangesets,
+		packageMeta
+	);
+	const changelogBodyWithVersionTitle = `## ${nextVersion}\n` + changelogBody;
+	const changelogTitle = `# ${packageMeta.name}\n`;
+	const changelogContent = changelogTitle + changelogBodyWithVersionTitle;
+	await fs.writeFile("CHANGELOG.md", changelogContent);
+
+	const packageJSON = await fs.readFile("package.json");
+	const parsedPackageJSON: object = JSON.parse(packageJSON.toString());
+	Object.assign(parsedPackageJSON, {
+		version: nextVersion
+	});
+	await fs.writeFile("package.json", JSON.stringify(parsedPackageJSON));
+	await fs.rm(".changesets", {
+		recursive: true,
+		force: true
+	});
+	execute("npx prettier -w package.json CHANGELOG.md")
+	commitChanges("main.auri");
+	execute("git checkout main");
+
+	await createReleaseRequest(packageMeta.repository, "main", nextVersion, changelogBody);
+}
+
+async function prepareNextPrerelease(
+	changesets: Changeset[],
+	packageMeta: PackageMeta
+): Promise<void> {
+	await initializeGit();
+
+	const majorChangesets: Changeset[] = [];
+	const minorChangesets: Changeset[] = [];
+	const patchChangesets: Changeset[] = [];
+	for (const changeset of changesets) {
+		if (changeset.type === "major") {
+			majorChangesets.push(changeset);
+		} else if (changeset.type === "minor") {
+			minorChangesets.push(changeset);
+		} else if (changeset.type === "patch") {
+			patchChangesets.push(changeset);
 		}
 	}
+	const currentNextVersion = packageMeta.version.next;
+	if (currentNextVersion === null) {
+		throw new Error("Expected prerelease version");
+	}
+	const nextVersion =
+		[packageMeta.version.major, 0, 0].join(".") + `-next.${currentNextVersion + 1}`;
+
+	const changelogTitle = `# ${packageMeta.name}\n`;
+	const changelogContentBuffer = await fs.readFile("CHANGELOG.md");
+	let changelogContent = changelogContentBuffer.toString();
+	const changelogBody = generateVersionChangelog(
+		majorChangesets,
+		minorChangesets,
+		patchChangesets,
+		packageMeta
+	);
+	const changelogBodyWithVersionTitle = `## ${nextVersion}\n` + changelogBody;
+	changelogContent =
+		changelogTitle + changelogBodyWithVersionTitle + changelogContent.replace(changelogTitle, "");
+	await fs.writeFile("CHANGELOG.md", changelogContent);
+
+	const packageJSON = await fs.readFile("package.json");
+	const parsedPackageJSON: object = JSON.parse(packageJSON.toString());
+	Object.assign(parsedPackageJSON, {
+		version: nextVersion
+	});
+	await fs.writeFile("package.json", JSON.stringify(parsedPackageJSON));
+	await fs.rm(".changesets", {
+		recursive: true,
+		force: true
+	});
+	execute("npx prettier -w package.json CHANGELOG.md")
+	commitChanges(`v${packageMeta.version.major}.auri`);
+	execute(`git checkout v${packageMeta.version.major}`);
+
 	await createReleaseRequest(
 		packageMeta.repository,
-		`v${majorVersion}`,
+		`v${packageMeta.version.major}`,
 		nextVersion,
-		releaseRequestBody
+		changelogBody
 	);
 }
 
-async function prepareNextMajorVersion(
+async function prepareNewPrerelease(
 	majorVersion: number,
+	changesets: Changeset[],
 	packageMeta: PackageMeta
 ): Promise<void> {
-	const currentVersion = parseVersion(packageMeta.version);
-	const changesets = await getChangesets(packageMeta.repository, `v${majorVersion}`);
-	if (changesets.length === 0) {
-		return;
+	await initializeGit();
+
+	const majorChangesets: Changeset[] = [];
+	const minorChangesets: Changeset[] = [];
+	const patchChangesets: Changeset[] = [];
+	for (const changeset of changesets) {
+		if (changeset.type === "major") {
+			majorChangesets.push(changeset);
+		} else if (changeset.type === "minor") {
+			minorChangesets.push(changeset);
+		} else if (changeset.type === "patch") {
+			patchChangesets.push(changeset);
+		}
 	}
 
-	await initGit();
+	const nextVersion = [majorVersion, 0, 0].join(".") + "-next.0";
 
-	let nextVersion: string;
-	if (currentVersion.major === majorVersion && currentVersion.next !== null) {
-		nextVersion = [majorVersion, 0, 0].join(".") + `-next.${currentVersion.next + 1}`;
-	} else {
-		nextVersion = [majorVersion, 0, 0].join(".") + `-next.0`;
-	}
-
-	if (currentVersion.next === null) {
-		let changelog = await fs.readFile("CHANGELOG.md").then((d) => d.toString());
-		let changelogBody = `## ${nextVersion}\n`;
-		for (const changeset of changesets) {
-			if (changeset.type !== "next") {
-				throw new Error('Changeset type must be "next"');
-			}
-			if (changeset.pullRequestNumber !== null) {
-				changelogBody += `- ${changeset.content.trim()} ([#${
-					changeset.pullRequestNumber
-				}](https://github.com/${packageMeta.repository.owner}/${packageMeta.repository.name}/pull/${
-					changeset.pullRequestNumber
-				}))\n`;
-			} else {
-				changelogBody += `- ${changeset.content.trim()}\n`;
-			}
-		}
-		const changelogTitle = `# ${packageMeta.name}\n`;
-		changelog = changelogTitle + changelogBody;
-		await fs.writeFile("CHANGELOG.md", changelog);
-	} else {
-		const changelogExists = await fileExists("CHANGELOG.md");
-		const changelogTitle = `# ${packageMeta.name}\n`;
-		if (!changelogExists) {
-			await fs.writeFile("CHANGELOG.md", changelogTitle);
-		}
-		let changelog = await fs.readFile("CHANGELOG.md").then((d) => d.toString());
-		let changelogBody = `## ${nextVersion}\n`;
-		for (const changeset of changesets) {
-			if (changeset.type !== "next") {
-				throw new Error('Changeset type must be "next"');
-			}
-			if (changeset.pullRequestNumber !== null) {
-				changelogBody += `- ${changeset.content.trim()} ([#${
-					changeset.pullRequestNumber
-				}](https://github.com/${packageMeta.repository.owner}/${packageMeta.repository.name}/pull/${
-					changeset.pullRequestNumber
-				}))\n`;
-			} else {
-				changelogBody += `- ${changeset.content.trim()}\n`;
-			}
-		}
-		changelog = changelogTitle + changelogBody + changelog.replace(changelogTitle, "");
-		await fs.writeFile("CHANGELOG.md", changelog);
-	}
+	const changelogBody = generateVersionChangelog(
+		majorChangesets,
+		minorChangesets,
+		patchChangesets,
+		packageMeta
+	);
+	const changelogBodyWithVersionTitle = `## ${nextVersion}\n` + changelogBody;
+	const changelogTitle = `# ${packageMeta.name}\n`;
+	const changelogContent = changelogTitle + changelogBodyWithVersionTitle;
+	await fs.writeFile("CHANGELOG.md", changelogContent);
 
 	const packageJSON = await fs.readFile("package.json");
 	const parsedPackageJSON: object = JSON.parse(packageJSON.toString());
@@ -393,26 +254,15 @@ async function prepareNextMajorVersion(
 		recursive: true,
 		force: true
 	});
-	commitChanges(`v${majorVersion}`);
-	execute(`git checkout v${majorVersion}`); // reset branch
+	execute("npx prettier -w package.json CHANGELOG.md")
+	commitChanges(`v${majorVersion}.auri`);
+	execute(`git checkout v${majorVersion}`);
 
-	let releaseRequestBody = "";
-	for (const changeset of changesets) {
-		if (changeset.pullRequestNumber !== null) {
-			releaseRequestBody += `- ${changeset.content.trim()} ([#${
-				changeset.pullRequestNumber
-			}](https://github.com/${packageMeta.repository.owner}/${packageMeta.repository.name}/pull/${
-				changeset.pullRequestNumber
-			}))\n`;
-		} else {
-			releaseRequestBody += `- ${changeset.content.trim()}\n`;
-		}
-	}
 	await createReleaseRequest(
 		packageMeta.repository,
 		`v${majorVersion}`,
 		nextVersion,
-		releaseRequestBody
+		changelogBody
 	);
 }
 
@@ -432,7 +282,7 @@ async function getChangesets(repository: Repository, branch: string): Promise<Ch
 		}
 		const [id, type] = changesetFilename.replace(".md", "").split(".");
 
-		if (type !== "patch" && type !== "minor" && type !== "next") {
+		if (type !== "patch" && type !== "minor" && type !== "major") {
 			throw new Error(`Invalid changeset file: ${changesetFilename}`);
 		}
 		const content = await fs.readFile(path.join(".changesets", changesetFilename));
@@ -457,7 +307,7 @@ async function getChangesets(repository: Repository, branch: string): Promise<Ch
 }
 
 interface Changeset {
-	type: "patch" | "minor" | "next";
+	type: "patch" | "minor" | "major";
 	content: string;
 	id: string;
 	pullRequestNumber: number | null;
@@ -485,16 +335,55 @@ async function createReleaseRequest(
 	}
 }
 
-async function initGit() {
+async function initializeGit() {
 	const user = await getGitUser();
 	execute(`git config --global user.name "${user.name}"`);
 	execute(`git config --global user.email "${user.email}"`);
 }
 
-function commitChanges(branch: string) {
-	execute("npx prettier -w CHANGELOG.md package.json");
-	execute(`git checkout -b ${branch}.auri`);
+function commitChanges(targetBranch: string) {
+	execute(`git checkout -b ${targetBranch}`);
 	execute("git add .");
 	execute('git commit -m "update release"');
 	execute("git push -f -u origin HEAD");
+}
+
+function generateVersionChangelog(
+	majorChangesets: Changeset[],
+	minorChangesets: Changeset[],
+	patchChangesets: Changeset[],
+	packageMeta: PackageMeta
+): string {
+	let body = "";
+	if (majorChangesets.length > 0) {
+		body += "## Major changes\n";
+		body += generateVersionTypeChangesetList(majorChangesets, packageMeta);
+	}
+	if (minorChangesets.length > 0) {
+		body += "## Minor changes\n";
+		body += generateVersionTypeChangesetList(minorChangesets, packageMeta);
+	}
+	if (patchChangesets.length > 0) {
+		body += "## Patch changes\n";
+		body += generateVersionTypeChangesetList(patchChangesets, packageMeta);
+	}
+	return body;
+}
+
+function generateVersionTypeChangesetList(
+	changesets: Changeset[],
+	packageMeta: PackageMeta
+): string {
+	let list = "";
+	for (const changeset of changesets) {
+		if (changeset.pullRequestNumber !== null) {
+			const pullRequestLink = `https://github.com/${packageMeta.repository.owner}/${packageMeta.repository.name}/pull/${changeset.pullRequestNumber}`;
+			list += `- ${changeset.content.trim()} ([#${
+				changeset.pullRequestNumber
+			}](${pullRequestLink}))\n`;
+		} else {
+			list += `- ${changeset.content.trim()}\n`;
+		}
+	}
+	return list;
 }

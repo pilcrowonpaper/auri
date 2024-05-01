@@ -20,11 +20,9 @@ yarn auri
 
 Auri is intentionally opinionated and intended for certain repositories:
 
-- Single monolith repository
-- Uses prettier
-- Package be built and published with: `npm run build && npm publish`
+- Single monolith repository (no monorepos)
+- The package can be built and published with: `npm run build && npm publish`
 - The package's `package.json` is in the repository root
-- No monorepos
 - No pre-releases for patch/minor versions
 
 ## Setup
@@ -41,6 +39,8 @@ You'll will need an NPM automation access token (classic) and a GitHub token wit
 ### 2. Create GitHub workflow
 
 Create a GitHub workflow that runs on every push. The NPM token should be named `NODE_AUTH_TOKEN` and the GitHub token as `AURI_GITHUB_TOKEN`.
+
+It is crucial that you setup `actions/checkout@v3` with `github.ref`. Auri expects the current branch to be the target branch.
 
 ```yaml
 # .github/workflows/publish.yaml
@@ -96,7 +96,7 @@ When you create a new pull request, run `pnpm auri add` to create a new changese
 npx auri patch
 ```
 
-This will create a new markdown file inside the `.changesets` directory. Write a concise summary of your changes. A single PR may include multiple (or zero) changesets. Each changeset might look something like this:
+This will create a new markdown file inside the `.changesets` directory. Write a concise summary of your changes. Each changeset should only include one change. A single PR may include multiple (or zero) changesets. Each changeset might look something like this:
 
 ```
 Fix: Stop deleting operating system at midnight
@@ -110,10 +110,10 @@ Auri works by creating dedicated branches for each major version. For example, `
 
 ### Next versions
 
-Whenever you create a versioned branch for a major version once above the version in `main`, it will publish packages with a "next" tag. These versions are your betas/alphas/prereleases and looks like `3.0.0-beta.16`. When working with "next", all your changesets must use `next`:
+Whenever you create a versioned branch for a major version once above the version in `main`, it will publish packages with a "next" tag. These versions are your betas/alphas/prereleases and looks like `3.0.0-beta.16`. In addition to `patch` and `minor`, you can also define `major` changes.
 
 ```
-npx auri next
+npx auri major
 ```
 
 Once you merge the branch into `main`, Auri will automatically release a stable version. If you want to keep working on the previous version, make sure you create a versioned branch for it before merging.
