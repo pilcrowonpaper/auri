@@ -10,7 +10,8 @@ export function parseVersion(version: string): VersionMeta {
 			major,
 			minor,
 			patch,
-			next
+			next,
+			value: version
 		};
 		return meta;
 	}
@@ -19,7 +20,8 @@ export function parseVersion(version: string): VersionMeta {
 		major,
 		minor,
 		patch,
-		next: null
+		next: null,
+		value: version
 	};
 	return meta;
 }
@@ -37,9 +39,10 @@ function parseSemver(semver: string): [major: number, minor: number, patch: numb
 	return parts as [number, number, number];
 }
 
-interface VersionMeta {
+export interface VersionMeta {
 	major: number;
 	minor: number;
 	patch: number;
 	next: number | null;
+	value: string
 }

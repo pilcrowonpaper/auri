@@ -1,7 +1,9 @@
 import fs from "fs/promises";
 import { parseRepositoryURL } from "../utils/github.js";
+import { parseVersion } from "./version.js";
 
 import type { Repository } from "../utils/github.js";
+import type { VersionMeta } from "./version.js";
 
 export async function parsePackageJSON(): Promise<PackageMeta> {
 	const packageJSON = await fs.readFile("package.json");
@@ -33,14 +35,14 @@ export async function parsePackageJSON(): Promise<PackageMeta> {
 
 	const packageMeta: PackageMeta = {
 		name: parsedPackageJSON.name,
-		version: parsedPackageJSON.version,
+		version: parseVersion(parsedPackageJSON.version),
 		repository
 	};
-    return packageMeta
+	return packageMeta;
 }
 
 export interface PackageMeta {
 	name: string;
-	version: string;
+	version: VersionMeta;
 	repository: Repository;
 }

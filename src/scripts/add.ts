@@ -3,7 +3,7 @@ import path from "path";
 
 import { dirExists } from "../utils/fs.js";
 
-export const addChangeset = async (type: "patch" | "minor" | "next") => {
+export const addChangeset = async (type: "patch" | "minor" | "major") => {
 	const changesetsDirExists = await dirExists(path.join(process.cwd(), ".changesets"));
 	if (!changesetsDirExists) {
 		await fs.mkdir(path.join(process.cwd(), ".changesets"));
