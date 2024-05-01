@@ -1,6 +1,6 @@
 {
 	"name": "auri",
-	"version": "1.0.2",
+	"version": "1.1.0",
 	"description": "Organize package changes and releases",
 	"type": "module",
 	"files": [
