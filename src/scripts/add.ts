@@ -8,14 +8,17 @@ export const addChangeset = async (type: "patch" | "minor" | "next") => {
 	if (!changesetsDirExists) {
 		await fs.mkdir(path.join(process.cwd(), ".changesets"));
 	}
-	await fs.writeFile(path.join(process.cwd(), ".changesets", `${generateId(5)}.${type}.md`), "");
+	const id = generateChangesetId();
+	const filename = `${id}.${type}.md`;
+	await fs.writeFile(path.join(process.cwd(), ".changesets", filename), "");
 };
 
-function generateId(length: number): string {
+function generateChangesetId(): string {
+	const now = Math.floor(Date.now() / 1000);
 	const alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
-	let result = "";
-	for (let i = 0; i < length; i++) {
-		result += alphabet[Math.floor(Math.random() * alphabet.length)];
+	let random = "";
+	for (let i = 0; i < 5; i++) {
+		random += alphabet[Math.floor(Math.random() * alphabet.length)];
 	}
-	return result;
+	return `${now.toString()}-${random}`;
 }
