@@ -2,10 +2,9 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-export const env = (key: string) => {
-	const value = process.env[key];
-	if (!value) {
-		throw new Error(`Environment variable "${key}" is undefined`);
+export function env(key: string): string {
+	if (key in process.env && typeof process.env[key] === "string") {
+		return process.env[key] as string;
 	}
-	return value;
-};
+	throw new Error(`Environment variable "${key}" is undefined`);
+}
