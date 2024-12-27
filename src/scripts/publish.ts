@@ -35,7 +35,7 @@ export async function publishScript(): Promise<void> {
 	if (publishedVersions.includes(metadata.version)) {
 		return;
 	}
-	const user = await getGitUser(npmToken);
+	const user = await getGitUser(githubToken);
 	childprocess.execSync(`git config --global user.name "${user.name}"`);
 	childprocess.execSync(`git config --global user.email "${user.email}"`);
 
