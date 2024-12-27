@@ -5,6 +5,8 @@ import { parsePackageJSON } from "../utils/package.js";
 import { env } from "../utils/env.js";
 import { parseSemver } from "../utils/semver.js";
 
+import type { Semver } from "../utils/semver.js";
+
 export async function publishScript(): Promise<void> {
 	const npmToken = env("AURI_NPM_TOKEN");
 	const githubToken = env("AURI_GITHUB_TOKEN");
@@ -119,7 +121,13 @@ function calculateReleaseTag(currentVersion: string, publishedVersions: string[]
 		return ReleaseTag.Next;
 	}
 	for (const publishedVersion of publishedVersions) {
-		const publishedSemver = parseSemver(publishedVersion);
+		let publishedSemver: Semver;
+		try {
+			publishedSemver = parseSemver(publishedVersion);
+		} catch {
+			// Ignore unknown version formats.
+			continue;
+		}
 		if (publishedSemver.next === null && publishedSemver.major > currentSemver.major) {
 			return ReleaseTag.Legacy;
 		}
