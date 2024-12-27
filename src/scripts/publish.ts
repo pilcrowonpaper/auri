@@ -31,6 +31,13 @@ export async function publishScript(): Promise<void> {
 	// NOTE: parsePackageJSON() checks that PackageMetaData.version does not include unusual characters.
 	const packageVersionSafe = metadata.version;
 
+	let repository: GitHubRepository;
+	try {
+		repository = parseGitHubRepositoryURL(metadata.repository);
+	} catch {
+		throw new Error("Invalid GitHub repository URL");
+	}
+
 	const publishedVersions = await getPublishedVersions(metadata.name);
 	if (publishedVersions.includes(metadata.version)) {
 		return;
@@ -38,6 +45,9 @@ export async function publishScript(): Promise<void> {
 	const user = await getGitUser(githubToken);
 	childprocess.execSync(`git config --global user.name "${user.name}"`);
 	childprocess.execSync(`git config --global user.email "${user.email}"`);
+	childprocess.execSync(
+		`git remote set-url origin https://x-access-token:${githubToken}@github.com/${repository.owner}/${repository.name}`
+	);
 
 	const releaseTag = calculateReleaseTag(metadata.version, publishedVersions);
 
@@ -91,13 +101,6 @@ export async function publishScript(): Promise<void> {
 		childprocess.execSync("git push origin --tags");
 	} catch {
 		throw new Error("Failed to push created tag");
-	}
-
-	let repository: GitHubRepository;
-	try {
-		repository = parseGitHubRepositoryURL(metadata.repository);
-	} catch {
-		throw new Error("Invalid GitHub repository URL");
 	}
 
 	try {
