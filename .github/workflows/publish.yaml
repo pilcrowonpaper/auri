@@ -7,7 +7,7 @@ env:
 
 jobs:
   publish-package:
-    name: Publish package with Auri
+    name: Publish package and release with Auri
     runs-on: ubuntu-latest
     if: github.repository == pilcrowonpaper/auri && github.ref == 'refs/heads/main'
     steps:
