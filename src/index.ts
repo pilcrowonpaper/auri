@@ -17,7 +17,7 @@ async function main(): Promise<void> {
 				message = e.message;
 			}
 			process.stderr.write(`::error ::${message}`);
-			return process.exit();
+			return process.exit(1);
 		}
 		return process.exit();
 	}
@@ -31,7 +31,7 @@ async function main(): Promise<void> {
 				message = e.message;
 			}
 			process.stderr.write(`::error ::${message}`);
-			return process.exit();
+			return process.exit(1);
 		}
 		return process.exit();
 	}
