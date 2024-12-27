@@ -18,12 +18,18 @@ yarn auri
 
 ## Prerequisites
 
-Auri is intentionally opinionated and intended for certain repositories:
+Auri does not work on certain repository setups:
 
+- Your repository is hosted on GitHub
 - Single monolith repository (no monorepos)
 - The package can be built and published with: `npm run build && npm publish`
 - The package's `package.json` is in the repository root
-- No pre-releases for patch/minor versions
+
+In addition, it's built with a few opinions in mind:
+
+- Only supports version formats like 2.0.0 for normal releases and formats like 2.0.0-next.1 for prereleases (it must be next).
+- Prereleases are tagged as 'next' on NPM.
+- Non-latest, non-next releases (e.g. 1.8.0 when latest is 2.3.0) will be tagged as 'legacy' on NPM.
 
 ## Setup
 
@@ -38,7 +44,7 @@ You'll will need an NPM automation access token (classic) and a GitHub token wit
 
 ### 2. Create GitHub workflow
 
-Create a GitHub workflow that runs on every push. The NPM token should be named `NODE_AUTH_TOKEN` and the GitHub token as `AURI_GITHUB_TOKEN`.
+Create a GitHub workflow that runs on every push. The NPM token should be named `NODE_AUTH_TOKEN` and the GitHub token as `AURI_NPM_TOKEN`.
 
 It is crucial that you setup `actions/checkout@v3` with `github.ref`. Auri expects the current branch to be the target branch.
 
@@ -49,12 +55,14 @@ on: [push]
 
 env:
   AURI_GITHUB_TOKEN: ${{secrets.AURI_GITHUB_TOKEN}}
-  NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
+  AURI_NPM_TOKEN: ${{secrets.AURI_NPM_TOKEN}}
 
 jobs:
   publish-package:
     name: Publish package with Auri
     runs-on: ubuntu-latest
+    # TODO: Update repository name.
+    if: github.repository == pilcrowonpaper/auri && github.ref == 'refs/heads/main'
     steps:
       - name: Setup actions
         uses: actions/checkout@v3
@@ -66,10 +74,8 @@ jobs:
           node-version: 20
           registry-url: "https://registry.npmjs.org/"
           cache: "npm"
-      - name: Prepare release
-        run: npm run auri prepare ${{ github.ref_name }}
-      - name: Publish package
-        run: npm run auri publish ${{ github.ref_name }}
+      - name: Publish package and release
+        run: npm run auri publish
 ```
 
 ### 3. Configure permissions
@@ -88,32 +94,6 @@ permissions:
 
 ## Instructions
 
-### Basics
+When you're ready to publish your package, run `auri generate` on your local machine. This will create a `.COMMITS` file with a list of commits since the last release (the version in package.json). Commits starting with `docs:`, `style:`, or `test:` will be ignored. This will also create a `.RELEASE.md`. Using `.COMMITS` as a reference, write your changelog in `.RELEASE.md`. Update the version field in your package.json and commit the change.
 
-When you create a new pull request, run `pnpm auri add` to create a new changeset. Use `add patch` for patch changes and `add minor` for minor changes.
-
-```
-npx auri patch
-```
-
-This will create a new markdown file inside the `.changesets` directory. Write a concise summary of your changes. Each changeset should only include one change. A single PR may include multiple (or zero) changesets. Each changeset might look something like this:
-
-```
-Fix: Stop deleting operating system at midnight
-```
-
-When you merge this to `main` or `master` branch, Auri will detect your changes and create a new "Release request" as a pull request. When you merge this request, your `package.json` and `CHANGELOG.md` will be updated, and new version of your package will be published to NPM.
-
-### Versioned branches
-
-Auri works by creating dedicated branches for each major version. For example, `main` will be for v3, `v2` for v2, and `v4` for experimental v4. This means you can maintain multiple major versions at once. Versioned branches be in the format of `v<integer>`.
-
-### Next versions
-
-Whenever you create a versioned branch for a major version once above the version in `main`, it will publish packages with a "next" tag. These versions are your betas/alphas/prereleases and looks like `3.0.0-beta.16`. In addition to `patch` and `minor`, you can also define `major` changes.
-
-```
-npx auri major
-```
-
-Once you merge the branch into `main`, Auri will automatically release a stable version. If you want to keep working on the previous version, make sure you create a versioned branch for it before merging.
+With the GitHub action, Auri will build and publish your package to NPM and use the `.RELEASE.md` to publish a new GitHub release.

@@ -13,6 +13,7 @@ export async function publishScript(): Promise<void> {
 	try {
 		releaseFileBytes = await fs.readFile(".RELEASE.md");
 	} catch {
+		// File does no exist.
 		return;
 	}
 	const releaseFile = new TextDecoder().decode(releaseFileBytes);
