@@ -12,6 +12,7 @@ jobs:
     if: github.repository == 'pilcrowonpaper/auri' && github.ref == 'refs/heads/main'
     permissions:
       id-token: write
+      contents: write
     steps:
       - name: Setup actions
         uses: actions/checkout@v3
