@@ -1,45 +1,40 @@
 #!/usr/bin/env node
-import { publish } from "./scripts/publish.js";
-import { prepareRelease } from "./scripts/prepare.js";
-import { addChangeset } from "./scripts/add.js";
+import { publishScript } from "./scripts/publish.js";
+import { generateScript } from "./scripts/generate.js";
 
-const nodeArgs = process.execArgv;
-const args = process.argv.slice(nodeArgs.length + 2);
+// TODO: Add --github-actions flag to format errors
+// TODO: Add --build-command parameter to pass custom build command
+async function main(): Promise<void> {
+	const nodeArgs = process.execArgv;
+	const args = process.argv.slice(nodeArgs.length + 2);
 
-process.on("uncaughtException", (e) => {
-	// show error in GitHub actions
-	process.stderr.write(`::error ::${e.message}`);
-	process.exit();
-});
-
-if (args[0] === "add") {
-	const type = args.at(1) ?? null;
-	if (type === null) {
-		throw new Error("Missing arguments");
+	if (args[0] === "generate") {
+		try {
+			await generateScript();
+		} catch (e) {
+			let message = "An unknown error occurred";
+			if (e instanceof Error) {
+				message = e.message;
+			}
+			process.stderr.write(`::error ::${message}`);
+			return process.exit();
+		}
+		return process.exit();
 	}
-	if (type !== "patch" && type !== "minor" && type !== "major") {
-		throw new Error("Invalid argument");
+
+	if (args[0] === "publish") {
+		try {
+			await publishScript();
+		} catch (e) {
+			let message = "An unknown error occurred";
+			if (e instanceof Error) {
+				message = e.message;
+			}
+			process.stderr.write(`::error ::${message}`);
+			return process.exit();
+		}
+		return process.exit();
 	}
-	await addChangeset(type);
-	process.exit()
 }
 
-if (args[0] === "prepare") {
-	const branch = args.at(1) ?? null;
-	if (branch === null) {
-		throw new Error("Missing arguments");
-	}
-	await prepareRelease(branch);
-	process.exit()
-}
-
-if (args[0] === "publish") {
-	const branch = args.at(1) ?? null;
-	if (branch === null) {
-		throw new Error("Missing arguments");
-	}
-	await publish(branch);
-	process.exit()
-}
-
-throw new Error(`Unknown command: ${args[0]}`);
+main();

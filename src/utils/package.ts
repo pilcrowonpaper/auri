@@ -1,48 +1,50 @@
-import fs from "fs/promises";
-import { parseRepositoryURL } from "../utils/github.js";
-import { parseVersion } from "./version.js";
-
-import type { Repository } from "../utils/github.js";
-import type { VersionMeta } from "./version.js";
-
-export async function parsePackageJSON(): Promise<PackageMeta> {
-	const packageJSON = await fs.readFile("package.json");
-	const parsedPackageJSON: object = JSON.parse(packageJSON.toString());
-	if (!("name" in parsedPackageJSON && typeof parsedPackageJSON.name === "string")) {
-		throw new Error('package.json missing field "name"');
+export function parsePackageJSON(data: unknown): PackageMetaData {
+	if (typeof data !== "object" || data === null) {
+		throw new Error("Invalid package.json");
 	}
-	if (!("version" in parsedPackageJSON && typeof parsedPackageJSON.version === "string")) {
-		throw new Error('package.json missing field "version"');
+
+	let name: string;
+	if ("name" in data && typeof data.name === "string") {
+		name = data.name;
+	} else {
+		throw new Error("Missing or invalid 'name' field");
 	}
+
+	let version: string;
+	if ("version" in data && typeof data.version === "string") {
+		version = data.version;
+	} else {
+		throw new Error("Missing or invalid 'version' field");
+	}
+	if (!/^[a-zA-Z0-9-._]*$/.test(version)) {
+		throw new Error("Missing or invalid 'version' field");
+	}
+	if (version.includes("..")) {
+		throw new Error("Missing or invalid 'version' field");
+	}
+
+	let repository: string;
 	if (
-		!(
-			"repository" in parsedPackageJSON &&
-			typeof parsedPackageJSON.repository === "object" &&
-			parsedPackageJSON.repository !== null
-		)
+		"repository" in data &&
+		typeof data.repository === "object" &&
+		data.repository !== null &&
+		"url" in data.repository &&
+		typeof data.repository.url === "string"
 	) {
-		throw new Error('package.json missing field "repository"');
+		repository = data.repository.url;
+	} else {
+		throw new Error("Missing or invalid 'repository.url' field");
 	}
-	if (
-		!("url" in parsedPackageJSON.repository && typeof parsedPackageJSON.repository.url === "string")
-	) {
-		throw new Error('package.json missing field "repository.url"');
-	}
-	const repository = parseRepositoryURL(parsedPackageJSON.repository.url);
-	if (!repository) {
-		throw new Error('Invalid "repository.url" field in package.json');
-	}
-
-	const packageMeta: PackageMeta = {
-		name: parsedPackageJSON.name,
-		version: parseVersion(parsedPackageJSON.version),
+	const metadata: PackageMetaData = {
+		name,
+		version,
 		repository
 	};
-	return packageMeta;
+	return metadata;
 }
 
-export interface PackageMeta {
+export interface PackageMetaData {
 	name: string;
-	version: VersionMeta;
-	repository: Repository;
+	version: string;
+	repository: string;
 }
