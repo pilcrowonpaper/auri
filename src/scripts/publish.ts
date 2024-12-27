@@ -9,6 +9,12 @@ import type { Semver } from "../utils/semver.js";
 
 export async function publishScript(): Promise<void> {
 	const npmToken = env("AURI_NPM_TOKEN");
+	let npmTokenSafe: string;
+	try {
+		npmTokenSafe = safeString(npmToken);
+	} catch {
+		throw new Error("Invalid NPM token");
+	}
 	const githubToken = env("AURI_GITHUB_TOKEN");
 
 	let releaseFileBytes: Uint8Array;
@@ -46,14 +52,16 @@ export async function publishScript(): Promise<void> {
 
 	if (releaseTag === ReleaseTag.Latest) {
 		try {
-			childprocess.execSync(`NODE_AUTH_TOKEN=${npmToken} npm publish --provenance --access=public`);
+			childprocess.execSync(
+				`NODE_AUTH_TOKEN=${npmTokenSafe} npm publish --provenance --access=public`
+			);
 		} catch {
 			throw new Error("Failed to publish package as latest");
 		}
 	} else if (releaseTag === ReleaseTag.Next) {
 		try {
 			childprocess.execSync(
-				`NODE_AUTH_TOKEN=${npmToken} npm publish --provenance --access=public --tag=next`
+				`NODE_AUTH_TOKEN=${npmTokenSafe} npm publish --provenance --access=public --tag=next`
 			);
 		} catch {
 			throw new Error("Failed to publish package as next");
@@ -61,7 +69,7 @@ export async function publishScript(): Promise<void> {
 	} else if (releaseTag === ReleaseTag.Legacy) {
 		try {
 			childprocess.execSync(
-				`NODE_AUTH_TOKEN=${npmToken} npm publish --provenance --access=public --tag=legacy`
+				`NODE_AUTH_TOKEN=${npmTokenSafe} npm publish --provenance --access=public --tag=legacy`
 			);
 		} catch {
 			throw new Error("Failed to publish package as legacy");
@@ -195,4 +203,11 @@ interface GitHubRepository {
 	url: string;
 	owner: string;
 	name: string;
+}
+
+function safeString(s: string): string {
+	if (!/[a-zA-Z0-9.-_]*/.test(s)) {
+		throw new Error("Invalid character");
+	}
+	return s;
 }
