@@ -20,10 +20,11 @@ yarn auri
 
 Auri does not work on certain repository setups:
 
-- Your repository is hosted on GitHub
-- Single monolith repository (no monorepos)
-- The package can be built and published with: `npm run build && npm publish`
-- The package's `package.json` is in the repository root
+- Your repository is hosted on GitHub.
+- Single monolith repository (no monorepos).
+- The package can be built and published with: `npm run build && npm publish`.
+- The package's `package.json` is in the repository root.
+- Pull requests are squashed and merge.
 
 In addition, it's built with a few opinions in mind:
 
