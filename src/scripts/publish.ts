@@ -88,8 +88,8 @@ export async function publishScript(): Promise<void> {
 		await createGitHubRelease(
 			githubToken,
 			repository,
-			metadata.version,
 			currentBranch,
+			metadata.version,
 			releaseTag,
 			releaseFile
 		);
