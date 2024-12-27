@@ -3,6 +3,7 @@ import { publishScript } from "./scripts/publish.js";
 import { generateScript } from "./scripts/generate.js";
 
 // TODO: Add --github-actions flag to format errors
+// TODO: Add --build-command parameter to pass custom build command
 async function main(): Promise<void> {
 	const nodeArgs = process.execArgv;
 	const args = process.argv.slice(nodeArgs.length + 2);
