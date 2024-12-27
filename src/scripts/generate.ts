@@ -36,5 +36,9 @@ export async function generateScript(): Promise<void> {
 	}
 
 	await fs.writeFile(".COMMITS", changeFile);
-	await fs.writeFile(".RELEASE.md", "");
+
+	// Create file if not exists
+	await fs.writeFile(".RELEASE.md", "", {
+		flag: "a+"
+	});
 }
