@@ -9,12 +9,11 @@ import type { Semver } from "../utils/semver.js";
 
 export async function publishScript(): Promise<void> {
 	const npmToken = env("AURI_NPM_TOKEN");
-	let npmTokenSafe: string;
-	try {
-		npmTokenSafe = safeString(npmToken);
-	} catch {
+	if (!isSafeString(npmToken)) {
 		throw new Error("Invalid NPM token");
 	}
+	const npmTokenSafe = npmToken;
+
 	const githubToken = env("AURI_GITHUB_TOKEN");
 
 	let releaseFileBytes: Uint8Array;
@@ -205,9 +204,6 @@ interface GitHubRepository {
 	name: string;
 }
 
-function safeString(s: string): string {
-	if (!/[a-zA-Z0-9.-_]*/.test(s)) {
-		throw new Error("Invalid character");
-	}
-	return s;
+function isSafeString(s: string): boolean {
+	return /[a-zA-Z0-9.-_]*/.test(s);
 }
