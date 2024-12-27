@@ -38,10 +38,7 @@ Install Auri via NPM and update your repository.
 
 ### 1. Generate access tokens
 
-You'll will need an NPM automation access token (classic) and a GitHub token with the following permissions:
-
-- `repo`
-- `user:email`
+Create an NPM automation access token (classic).
 
 ### 2. Create GitHub workflow
 
@@ -55,16 +52,17 @@ name: "Publish package"
 on: [push]
 
 env:
-  AURI_GITHUB_TOKEN: ${{secrets.AURI_GITHUB_TOKEN}}
+  AURI_GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
   AURI_NPM_TOKEN: ${{secrets.AURI_NPM_TOKEN}}
 
 jobs:
   publish-package:
-    name: Publish package with Auri
+    name: Publish package and release with Auri
     runs-on: ubuntu-latest
     # TODO: Update repository name.
-    if: github.repository == pilcrowonpaper/auri && github.ref == 'refs/heads/main'
+    if: github.repository == 'pilcrowonpaper/auri' && github.ref == 'refs/heads/main'
     permissions:
+      contents: write
       id-token: write
     steps:
       - name: Setup actions
@@ -77,6 +75,10 @@ jobs:
           node-version: 20
           registry-url: "https://registry.npmjs.org/"
           cache: "npm"
+      - name: Install dependencies
+        run: npm install
+      - name: Build package
+        run: npm run build
       - name: Publish package and release
         run: npm run auri publish
 ```
