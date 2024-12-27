@@ -28,8 +28,6 @@ export async function publishScript(): Promise<void> {
 	const packageJSONFile = await fs.readFile("package.json");
 	const packageJSON: unknown = JSON.parse(packageJSONFile.toString());
 	const metadata = parsePackageJSON(packageJSON);
-	// NOTE: parsePackageJSON() checks that PackageMetaData.version does not include unusual characters.
-	const packageVersionSafe = metadata.version;
 
 	let repository: GitHubRepository;
 	try {
@@ -42,12 +40,6 @@ export async function publishScript(): Promise<void> {
 	if (publishedVersions.includes(metadata.version)) {
 		return;
 	}
-	const user = await getGitUser(githubToken);
-	childprocess.execSync(`git config --global user.name "${user.name}"`);
-	childprocess.execSync(`git config --global user.email "${user.email}"`);
-	childprocess.execSync(
-		`git remote set-url origin https://x-access-token:${githubToken}@github.com/${repository.owner}/${repository.name}`
-	);
 
 	const releaseTag = calculateReleaseTag(metadata.version, publishedVersions);
 
@@ -91,20 +83,16 @@ export async function publishScript(): Promise<void> {
 		throw new Error("Invalid state");
 	}
 
+	const currentBranch = getCurrentBranch();
 	try {
-		childprocess.execSync(`git tag "v${packageVersionSafe}"`);
-	} catch {
-		throw new Error("Failed to create tag");
-	}
-
-	try {
-		childprocess.execSync("git push origin --tags");
-	} catch {
-		throw new Error("Failed to push created tag");
-	}
-
-	try {
-		await createGitHubRelease(githubToken, repository, metadata.version, releaseTag, releaseFile);
+		await createGitHubRelease(
+			githubToken,
+			repository,
+			metadata.version,
+			currentBranch,
+			releaseTag,
+			releaseFile
+		);
 	} catch {
 		throw new Error("Failed to create GitHub release");
 	}
@@ -175,12 +163,14 @@ function parseGitHubRepositoryURL(url: string): GitHubRepository {
 async function createGitHubRelease(
 	token: string,
 	repository: GitHubRepository,
+	branch: string,
 	version: string,
 	releaseTag: ReleaseTag,
 	body: string
 ): Promise<void> {
 	const requestBody = JSON.stringify({
 		tag_name: `v${version}`,
+		target_commitish: branch,
 		name: `v${version}`,
 		body: body,
 		make_latest: releaseTag === ReleaseTag.Latest,
@@ -215,80 +205,8 @@ function isSafeString(s: string): boolean {
 	return /[a-zA-Z0-9.-_]*/.test(s);
 }
 
-interface GitUser {
-	name: string;
-	email: string;
-}
-
-async function getGitUser(token: string): Promise<GitUser> {
-	const userResponse = await fetch("https://api.github.com/user", {
-		headers: {
-			Authorization: `Bearer ${token}`,
-			Accept: "application/json"
-		}
-	});
-	if (!userResponse.ok) {
-		if (userResponse.body !== null) {
-			await userResponse.body.cancel();
-		}
-		throw new Error("Failed to fetch data from GitHub");
-	}
-	const githubUserJSON: unknown = await userResponse.json();
-	if (typeof githubUserJSON !== "object" || githubUserJSON === null) {
-		throw new Error("Failed to fetch data from GitHub");
-	}
-	let username: string;
-	if ("login" in githubUserJSON && typeof githubUserJSON.login === "string") {
-		username = githubUserJSON.login;
-	} else {
-		throw new Error("Failed to fetch data from GitHub");
-	}
-
-	const emailsResponse = await fetch("https://api.github.com/user/emails", {
-		headers: {
-			Authorization: `Bearer ${token}`,
-			Accept: "application/json"
-		}
-	});
-	if (!emailsResponse.ok) {
-		if (emailsResponse.body !== null) {
-			await emailsResponse.body.cancel();
-		}
-		throw new Error("Failed to fetch data from GitHub");
-	}
-	const githubEmailsJSON: unknown = await emailsResponse.json();
-	if (!Array.isArray(githubEmailsJSON)) {
-		throw new Error("Failed to fetch data from GitHub");
-	}
-	for (const emailJSON of githubEmailsJSON) {
-		if (typeof emailJSON !== "object" || emailJSON === null) {
-			throw new Error("Failed to fetch data from GitHub");
-		}
-		let email: string;
-		if ("email" in emailJSON && typeof emailJSON.email === "string") {
-			email = emailJSON.email;
-		} else {
-			throw new Error("Failed to fetch data from GitHub");
-		}
-		let emailVerified: boolean;
-		if ("verified" in emailJSON && typeof emailJSON.verified === "boolean") {
-			emailVerified = emailJSON.verified;
-		} else {
-			throw new Error("Failed to fetch data from GitHub");
-		}
-		let primaryEmail: boolean;
-		if ("primary" in emailJSON && typeof emailJSON.primary === "boolean") {
-			primaryEmail = emailJSON.primary;
-		} else {
-			throw new Error("Failed to fetch data from GitHub");
-		}
-		if (emailVerified && primaryEmail) {
-			const gitUser: GitUser = {
-				email: email,
-				name: username
-			};
-			return gitUser;
-		}
-	}
-	throw new Error("User email not verified");
+function getCurrentBranch(): string {
+	const bytes: Uint8Array = childprocess.execSync("git rev-parse --abbrev-ref HEAD");
+	const branch = new TextDecoder().decode(bytes).trim();
+	return branch;
 }
