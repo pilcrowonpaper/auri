@@ -2,7 +2,7 @@ name: "Publish package"
 on: [push]
 
 env:
-  AURI_GITHUB_TOKEN: ${{secrets.AURI_GITHUB_TOKEN}}
+  AURI_GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
   AURI_NPM_TOKEN: ${{secrets.AURI_NPM_TOKEN}}
 
 jobs:
@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.repository == 'pilcrowonpaper/auri' && github.ref == 'refs/heads/main'
     permissions:
+      contents: write
       id-token: write
     steps:
       - name: Setup actions

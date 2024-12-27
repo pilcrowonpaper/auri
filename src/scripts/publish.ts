@@ -96,6 +96,27 @@ export async function publishScript(): Promise<void> {
 	} catch {
 		throw new Error("Failed to create GitHub release");
 	}
+
+	childprocess.execSync(`git config user.name "github-actions[bot]"`);
+	childprocess.execSync(
+		`git config user.email "41898282+github-actions[bot]@users.noreply.github.com"`
+	);
+	try {
+		childprocess.execSync(
+			`git remote set-url origin https://x-access-token:${githubToken}@github.com/${repository.owner}/${repository.name}.git`
+		);
+	} catch {
+		throw new Error("Failed to access repository.");
+	}
+	await fs.rm(".RELEASE.md");
+
+	try {
+		childprocess.execSync("git add .");
+		childprocess.execSync(`git commit -m "delete .RELEASE.md"`);
+		childprocess.execSync(`git push origin ${currentBranch}`);
+	} catch {
+		throw new Error("Failed to delete .RELEASE.md");
+	}
 }
 
 async function getPublishedVersions(name: string): Promise<string[]> {
