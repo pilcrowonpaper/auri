@@ -46,14 +46,14 @@ export async function publishScript(): Promise<void> {
 
 	if (releaseTag === ReleaseTag.Latest) {
 		try {
-			childprocess.execSync(`NPM_TOKEN=${npmToken} npm publish --provenance --access=public`);
+			childprocess.execSync(`NODE_AUTH_TOKEN=${npmToken} npm publish --provenance --access=public`);
 		} catch {
 			throw new Error("Failed to publish package as latest");
 		}
 	} else if (releaseTag === ReleaseTag.Next) {
 		try {
 			childprocess.execSync(
-				`NPM_TOKEN=${npmToken} npm publish --provenance --access=public --tag=next`
+				`NODE_AUTH_TOKEN=${npmToken} npm publish --provenance --access=public --tag=next`
 			);
 		} catch {
 			throw new Error("Failed to publish package as next");
@@ -61,7 +61,7 @@ export async function publishScript(): Promise<void> {
 	} else if (releaseTag === ReleaseTag.Legacy) {
 		try {
 			childprocess.execSync(
-				`NPM_TOKEN=${npmToken} npm publish --provenance --access=public --tag=legacy`
+				`NODE_AUTH_TOKEN=${npmToken} npm publish --provenance --access=public --tag=legacy`
 			);
 		} catch {
 			throw new Error("Failed to publish package as legacy");
