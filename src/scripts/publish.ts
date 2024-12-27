@@ -174,7 +174,7 @@ async function createGitHubRelease(
 		name: `v${version}`,
 		body: body,
 		make_latest: releaseTag === ReleaseTag.Latest ? "true" : "false",
-		prerelease: releaseTag === ReleaseTag.Next ? "true" : "false"
+		prerelease: releaseTag === ReleaseTag.Next
 	});
 	const response = await fetch(
 		`https://api.github.com/repos/${repository.owner}/${repository.name}/releases`,
