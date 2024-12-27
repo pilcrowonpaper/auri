@@ -64,6 +64,8 @@ jobs:
     runs-on: ubuntu-latest
     # TODO: Update repository name.
     if: github.repository == pilcrowonpaper/auri && github.ref == 'refs/heads/main'
+    permissions:
+      id-token: write
     steps:
       - name: Setup actions
         uses: actions/checkout@v3
