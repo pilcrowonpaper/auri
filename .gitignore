@@ -4,3 +4,6 @@
 .env
 
 .COMMITS
+
+package-lock.json
+pnpm-lock.yaml
