@@ -74,7 +74,6 @@ jobs:
         with:
           node-version: 20
           registry-url: "https://registry.npmjs.org/"
-          cache: "npm"
       - name: Install dependencies
         run: npm install
       - name: Build package
