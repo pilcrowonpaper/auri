@@ -3,9 +3,8 @@ import * as childprocess from "child_process";
 
 import { parsePackageJSON } from "../utils/package.js";
 import { env } from "../utils/env.js";
-import { parseSemver } from "../utils/semver.js";
-
-import type { Semver } from "../utils/semver.js";
+import { parseSemver, Semver } from "../utils/semver.js";
+import { parseGitHubGitRepositoryURL, GitHubRepository } from "../utils/github.js";
 
 export async function publishScript(): Promise<void> {
 	const npmToken = env("AURI_NPM_TOKEN");
@@ -31,7 +30,7 @@ export async function publishScript(): Promise<void> {
 
 	let repository: GitHubRepository;
 	try {
-		repository = parseGitHubRepositoryURL(metadata.repository);
+		repository = parseGitHubGitRepositoryURL(metadata.repository);
 	} catch {
 		throw new Error("Invalid GitHub repository URL");
 	}
@@ -164,23 +163,6 @@ enum ReleaseTag {
 	Legacy
 }
 
-function parseGitHubRepositoryURL(url: string): GitHubRepository {
-	const parsed = new URL(url);
-	if (parsed.origin !== "https://github.com") {
-		throw new Error("Invalid GitHub repository URL");
-	}
-	const pathnameParts = parsed.pathname.split("/").slice(1);
-	if (pathnameParts.length < 2) {
-		throw new Error("Invalid GitHub repository URL");
-	}
-	const repository: GitHubRepository = {
-		url,
-		owner: pathnameParts[0],
-		name: pathnameParts[1]
-	};
-	return repository;
-}
-
 async function createGitHubRelease(
 	token: string,
 	repository: GitHubRepository,
@@ -214,12 +196,6 @@ async function createGitHubRelease(
 	if (!response.ok) {
 		throw new Error("Failed to create GitHub release");
 	}
-}
-
-interface GitHubRepository {
-	url: string;
-	owner: string;
-	name: string;
 }
 
 function isSafeString(s: string): boolean {
