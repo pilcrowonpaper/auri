@@ -2,6 +2,7 @@ import * as fs from "fs/promises";
 import * as childprocess from "child_process";
 
 import { parsePackageJSON } from "../utils/package.js";
+import { GitHubRepository, parseGitHubGitRepositoryURL } from "../utils/github.js";
 
 export async function generateScript(): Promise<void> {
 	const packageJSONFile = await fs.readFile("package.json");
@@ -9,6 +10,13 @@ export async function generateScript(): Promise<void> {
 	const metadata = parsePackageJSON(packageJSON);
 	// NOTE: parsePackageJSON() checks that PackageMetaData.version only includes '.', '-', or "_" as special characters.
 	const packageVersionSafe = metadata.version;
+
+	let repository: GitHubRepository;
+	try {
+		repository = parseGitHubGitRepositoryURL(metadata.repository);
+	} catch {
+		throw new Error("Invalid GitHub repository URL");
+	}
 
 	// TODO: Support line breaks in commit messages?
 	const output = childprocess
@@ -29,7 +37,7 @@ export async function generateScript(): Promise<void> {
 
 	let changeFile = "";
 	for (let i = 0; i < commitHashes.length; i++) {
-		changeFile += `${metadata.repository}/commit/${commitHashes[i]}`;
+		changeFile += `https://github.com/${repository.owner}/${repository.name}/commit/${commitHashes[i]}`;
 		if (i !== commitHashes.length - 1) {
 			changeFile += "\n";
 		}

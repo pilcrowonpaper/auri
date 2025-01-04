@@ -31,7 +31,11 @@ export function parsePackageJSON(data: unknown): PackageMetaData {
 		"url" in data.repository &&
 		typeof data.repository.url === "string"
 	) {
-		repository = data.repository.url;
+		if (data.repository.url.endsWith(".git")) {
+			repository = data.repository.url;
+		} else {
+			repository = data.repository.url + ".git";
+		}
 	} else {
 		throw new Error("Missing or invalid 'repository.url' field");
 	}
