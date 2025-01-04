@@ -1,6 +1,6 @@
 {
 	"name": "auri",
-	"version": "3.1.0",
+	"version": "3.1.1",
 	"description": "Organize package changes and releases",
 	"type": "module",
 	"files": [
@@ -20,7 +20,7 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/pilcrowonpaper/auri",
+		"url": "https://github.com/pilcrowonpaper/auri.git",
 		"directory": "/"
 	},
 	"author": "pilcrowOnPaper",
